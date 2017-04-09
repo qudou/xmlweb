@@ -1,0 +1,24 @@
+{
+  "name": "xmlweb",
+  "version": "1.0.1",
+  "dependencies": {
+    "xmlplus": ">=1.5.0",
+    "path-to-regexp": ">=1.2.1"
+  },
+  "description": "A tiny http server based on xmlplus.",
+  "main": "./src/xmlweb.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qudou/xmlweb.git"
+  },
+  "homepage": "https://github.com/qudou/xmlweb",
+  "keywords": [
+    "xmlweb", "http"
+  ],
+  "author": {
+    "name": "qudou",
+    "email": "xmlplus@qq.com"
+  },
+  "license": "MIT"
+}
