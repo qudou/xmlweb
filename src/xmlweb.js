@@ -368,8 +368,8 @@ $_("static").imports({
                 r.res.setHeader("Last-Modified", lastModified);
                 if ( r.req.headers["if-modified-since"] && lastModified == r.req.headers["if-modified-since"] ) {
                     r.res.statusCode = 304;
-					r.res.setHeader("Content-Type", "text/html");
-					return r.res.end();
+                    r.res.setHeader("Content-Type", "text/html");
+                    return r.res.end();
                 }
                 this.trigger("next", r);
             });
@@ -407,13 +407,13 @@ $_("static").imports({
     Err404: {
         fun: function (sys, items, opts) {
             let text = "Not Found", fs = require("fs");
-			try {
-				let page = require("path").join(opts.root, "/404.html");
-				fs.statSync(page).isFile() && (text = fs.readFileSync(page, "utf8"));
-			} catch ( err ) {}
+            try {
+                let page = require("path").join(opts.root, "/404.html");
+                fs.statSync(page).isFile() && (text = fs.readFileSync(page, "utf8"));
+            } catch ( err ) {}
             this.on("enter", (e, r) => {
-				r.res.statusCode = 404;
-				r.res.setHeader("Content-Type", "text/html");
+                r.res.statusCode = 404;
+                r.res.setHeader("Content-Type", "text/html");
                 r.res.end(text);
             });
         }
@@ -423,7 +423,7 @@ $_("static").imports({
             let util = require("util");
             this.on("enter", (e, r) => {
                 r.res.statusCode = 500;
-				r.res.setHeader("Content-Type", "text/html");
+                r.res.setHeader("Content-Type", "text/html");
                 r.res.end(util.inspect(r.err));
             });
         }
