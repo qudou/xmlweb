@@ -6,9 +6,9 @@
  */
 let xmlplus = require("xmlplus");
 
-xmlplus("xmlweb", (xp, $, t) => {
+xmlplus("xmlweb", (xp, $_, t) => {
 
-$().imports({
+$_().imports({
     Http: {
         map: { format: { "int": "listen" } },
         fun: function (sys, items, opts) {
@@ -80,7 +80,7 @@ $().imports({
     }
 });
 
-$("header").imports({
+$_("header").imports({
     Header: {
         fun: function (sys, items, opts) {
             return opts;
@@ -99,7 +99,7 @@ $("header").imports({
     }
 });
 
-$("rewrite").imports({
+$_("rewrite").imports({
     Roule: {
         map: { extend: { "from": "/header/Header" } }
     },
@@ -124,7 +124,7 @@ $("rewrite").imports({
     }
 });
 
-$("router").imports({
+$_("router").imports({
     Router: {
         xml: "<main id='router' xmlns:i='parser'>\
                 <i:ParseURL id='url'/>\
@@ -168,7 +168,7 @@ $("router").imports({
     }
 });
 
-$("router/parser").imports({
+$_("router/parser").imports({
     ParseURL: {
         fun: function (sys, items, opts) {
             let pathRegexp = require("path-to-regexp"),
@@ -213,7 +213,7 @@ $("router/parser").imports({
     }
 });
 
-$("router/location").imports({
+$_("router/location").imports({
     Validate: {
         xml: "<main xmlns:i='/session'>\
                 <i:Cookie id='cookie'/>\
@@ -238,7 +238,7 @@ $("router/location").imports({
     }
 });
 
-$("session").imports({
+$_("session").imports({
     Cookie: {
         opt: { httpOnly: true, path: "/", maxAge: 24 * 3600 * 1000 },
         fun: function (sys, items, opts) {
@@ -333,7 +333,7 @@ $("session").imports({
     }
 });
 
-$("static").imports({
+$_("static").imports({
     Status: {
         fun: function (sys, items, opts) {
             let fs = require("fs"), url = require("url"), path = require("path");
