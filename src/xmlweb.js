@@ -1,7 +1,7 @@
 ﻿/*!
  * xmlweb.js v1.0.1
  * https://github.com/qudou/xmlweb
- * (c) 2009-2016 qudou
+ * (c) 2009-2017 qudou
  * Released under the MIT license
  */
 let xmlplus = require("xmlplus");
