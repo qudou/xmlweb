@@ -6,7 +6,7 @@
     "path-to-regexp": ">=1.2.1"
   },
   "description": "A tiny http server based on xmlplus.",
-  "main": "./src/xmlweb.js",
+  "main": "xmlweb.js",
   "scripts": {},
   "repository": {
     "type": "git",
