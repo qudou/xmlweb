@@ -66,15 +66,22 @@ $_().imports({
                 <s:Cache id='catch'/>\
                 <s:Compress id='compress'/>\
                 <s:Output id='output'/>\
-                <s:Err404 id='err404'/>\
                 <s:Err500 id='err500'/>\
               </Flow>",
         opt: { root: __dirname, url: "/*" }, 
-        map: { attrs: { status: "root", err404: "root", router: "url" } },
+        map: { attrs: { status: "root", router: "url" } }
+    },
+    Err404: {
         fun: function (sys, items, opts) {
-            sys.router.on("reject", (e, r) => {
-                e.stopPropagation();
-                this.trigger("next", [r, "err404"]);
+            let text = "Not Found", fs = require("fs");
+            try {
+                let page = require("path").join(opts.root, "/404.html");
+                fs.statSync(page).isFile() && (text = fs.readFileSync(page, "utf8"));
+            } catch ( err ) {}
+            this.on("enter", (e, r) => {
+                r.res.statusCode = 404;
+                r.res.setHeader("Content-Type", "text/html");
+                r.res.end(text);
             });
         }
     }
@@ -342,9 +349,9 @@ $_("static").imports({
                 r.ext = (path.extname(r.path) || ".txt").slice(1);
                 let s = await status(r.path);
                 if ( s.err == null ) {
-                    this.trigger("next", s.stat.isFile() ? (r.stat = s.stat, r) : [r,"err404"]);
+                    s.stat.isFile() ? this.trigger("next", (r.stat = s.stat, r)) : this.trigger("reject", r);
                 } else if (s.err.code == "ENOENT") {
-                    this.trigger("next", [r,"err404"]);
+                    this.trigger("reject", r);
                 } else {
                     r.err = s.err, this.trigger("next", [r,"err500"]);
                 }
@@ -401,20 +408,6 @@ $_("static").imports({
             this.on("enter", (e, r) => {
                 r.res.setHeader("Content-Type", mime[r.ext] || "unknow"); 
                 r.compress ? r.raw.pipe(r.compress).pipe(r.res) : r.raw.pipe(r.res);
-            });
-        }
-    },
-    Err404: {
-        fun: function (sys, items, opts) {
-            let text = "Not Found", fs = require("fs");
-            try {
-                let page = require("path").join(opts.root, "/404.html");
-                fs.statSync(page).isFile() && (text = fs.readFileSync(page, "utf8"));
-            } catch ( err ) {}
-            this.on("enter", (e, r) => {
-                r.res.statusCode = 404;
-                r.res.setHeader("Content-Type", "text/html");
-                r.res.end(text);
             });
         }
     },
