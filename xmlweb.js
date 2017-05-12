@@ -113,20 +113,31 @@ $_("rewrite").imports({
     Rewrite: {
         fun: function (sys, items, opts) {
             let table = [],
+                regexp = /\$(\d+)|(?::(\w+))/g,
                 toRegexp = require("path-to-regexp");
-            this.children().forEach(item => {
-                let o = item.value();
-                table.push({"from": toRegexp(o["from"], [], {}), "to": o["to"]});
-            });
-            if ( opts["from"] )
-                table.push({"from": toRegexp(opts["from"], [], {}), "to": opts["to"]});
             this.on("enter", (e, obj) => {
                 table.forEach(item => {
-                    if ( obj.url.match(item["from"], [], {}) )
-                        obj.url = item["to"];
+                    let m = item["from"].exec(obj.req.url);
+                    m && (obj.url = item["to"].replace(regexp, (_, n, name) => {return m[item.map[name].index + 1]}));
                 });
+                console.log("hello", obj.url);
                 this.trigger("next", obj);
             });
+            function toMap(params) {
+                var map = {};
+                params.forEach((param, i) => {
+                    param.index = i;
+                    map[param.name] = param;
+                });
+                return map;
+            }
+            function prepare(item) {
+                let keys = [];
+                table.push({"from": toRegexp(item["from"], keys), "to": item["to"]});
+                table[table.length-1].map = toMap(keys);
+            }
+            opts["from"] && prepare(opts);
+            this.children().values().forEach(prepare);
         }
     }
 });
@@ -143,7 +154,7 @@ $_("router").imports({
             this.on("enter", async (e, r) => {
                 if ( r.req.method != opts.method )
                     return this.trigger("reject", r);
-                r.args = items.url(r.url);
+                r.args = items.url(r.req.url);
                 if ( r.args == false )
                     return this.trigger("reject", r);
                 if ( r.req.method == "POST" && opts.usebody )
