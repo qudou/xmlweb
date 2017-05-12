@@ -120,7 +120,6 @@ $_("rewrite").imports({
                     let m = item["from"].exec(obj.req.url);
                     m && (obj.url = item["to"].replace(regexp, (_, n, name) => {return m[item.map[name].index + 1]}));
                 });
-                console.log("hello", obj.url);
                 this.trigger("next", obj);
             });
             function toMap(params) {
