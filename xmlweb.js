@@ -70,25 +70,13 @@ $_().imports({
               </Flow>",
         opt: { root: __dirname, url: "/*" }, 
         map: { attrs: { status: "root", router: "url" } }
-    },
-    Err404: {
-        fun: function (sys, items, opts) {
-            let text = "Not Found", fs = require("fs");
-            try {
-                let page = require("path").join(opts.root, "/404.html");
-                fs.statSync(page).isFile() && (text = fs.readFileSync(page, "utf8"));
-            } catch ( err ) {}
-            this.on("enter", (e, r) => {
-                r.res.statusCode = 404;
-                r.res.setHeader("Content-Type", "text/html");
-                r.res.end(text);
-            });
-        }
     }
 });
 
 $_("header").imports({
     Header: {
+        xml: "<span id='span'/>",
+        map: { attrs: { span: "from to" } },
         fun: function (sys, items, opts) {
             return opts;
         }
@@ -116,10 +104,12 @@ $_("rewrite").imports({
                 regexp = /\$(\d+)|(?::(\w+))/g,
                 toRegexp = require("path-to-regexp");
             this.on("enter", (e, obj) => {
-                table.forEach(item => {
+                for (item of table) {
                     let m = item["from"].exec(obj.req.url);
-                    m && (obj.url = item["to"].replace(regexp, (_, n, name) => {return m[item.map[name].index + 1]}));
-                });
+                    if ( !m ) continue;
+                    obj.url = item["to"].replace(regexp, (_, n, name) => {return m[item.map[name].index + 1]});
+                    break;
+                }
                 this.trigger("next", obj);
             });
             function toMap(params) {
