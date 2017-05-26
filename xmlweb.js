@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.0.1
+ * xmlweb.js v1.0.3
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -14,16 +14,14 @@ $_().imports({
         fun: function (sys, items, opts) {
             let first = this.first(),
                 table = this.find("./*[@id]").hash();
-            this.on("reply", (e, r, code) => {
-                r.res.setHeader("Content-Type", "application/json; charset=utf-8");
-                r.data = r.data || {};
-                code !== undefined && (r.data.code = code);
-                r.res.end(JSON.stringify(r.data));
-            });
-            this.on("reject", (e, r) => this.trigger("reply", r, false));
             this.on("next", (e, r, next) => {
                 r.ptr[0] = table[next] || r.ptr[0].next();
-                r.ptr[0] ? r.ptr[0].trigger("enter", r, false) : this.trigger("reply", r, false);
+                r.ptr[0] ? r.ptr[0].trigger("enter", r, false) : this.trigger("reject");
+            });
+            this.on("reject", (e, d) => {
+				d.res.statusCode = 404;
+				d.res.setHeader("Content-Type", "text/html");
+                d.res.end("Not Found");
             });
             require("http").createServer((req, res) => {
                 res.setHeader("Server", "Apache/2.2.22 (Ubuntu)");
@@ -34,7 +32,8 @@ $_().imports({
     Flow: {
         xml: "<main id='flow'/>",
         fun: function (sys, items, opts) {
-            let first = this.first(), table = this.find("./*[@id]").hash();
+            let first = this.first(),
+                table = this.find("./*[@id]").hash();
             this.on("enter", (e, r, next) => {
                 r.ptr.unshift(first);
                 first.trigger("enter", r, false);
@@ -133,22 +132,22 @@ $_("rewrite").imports({
 
 $_("router").imports({
     Router: {
-        xml: "<main id='router' xmlns:i='parser'>\
+        xml: "<main id='router' xmlns:i='/router/parser'>\
                 <i:ParseURL id='url'/>\
                 <i:ParseBody id='body'/>\
               </main>",
         opt: { url: "/", method: "POST", usebody: true },
         map: { attrs: {"url": "url"}, format: {"bool": "usebody"} },
         fun: function (sys, items, opts) {
-            this.on("enter", async (e, r) => {
-                if ( r.req.method != opts.method )
-                    return this.trigger("reject", r);
-                r.args = items.url(r.req.url);
-                if ( r.args == false )
-                    return this.trigger("reject", r);
-                if ( r.req.method == "POST" && opts.usebody )
-                    r.body = await items.body(r.req);
-                this.trigger("next", r);
+            this.on("enter", async (e, d) => {
+                if ( d.req.method != opts.method )
+                    return this.trigger("reject", d);
+                d.args = items.url(d.req.url);
+                if ( d.args == false )
+                    return this.trigger("reject", d);
+                if ( d.req.method == "POST" && opts.usebody )
+                    d.body = await items.body(d.req);
+                this.trigger("next", d);
             });
         }
     },
