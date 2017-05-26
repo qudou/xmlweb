@@ -14,9 +14,9 @@ $_().imports({
         fun: function (sys, items, opts) {
             let first = this.first(),
                 table = this.find("./*[@id]").hash();
-            this.on("next", (e, r, next) => {
-                r.ptr[0] = table[next] || r.ptr[0].next();
-                r.ptr[0] ? r.ptr[0].trigger("enter", r, false) : this.trigger("reject");
+            this.on("next", (e, d, next) => {
+                d.ptr[0] = table[next] || d.ptr[0].next();
+                d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject");
             });
             this.on("reject", (e, d) => {
 				d.res.statusCode = 404;
@@ -34,26 +34,26 @@ $_().imports({
         fun: function (sys, items, opts) {
             let first = this.first(),
                 table = this.find("./*[@id]").hash();
-            this.on("enter", (e, r, next) => {
-                r.ptr.unshift(first);
-                first.trigger("enter", r, false);
+            this.on("enter", (e, d, next) => {
+                d.ptr.unshift(first);
+                first.trigger("enter", d, false);
             });
-            this.on("next", (e, r, next) => {
+            this.on("next", (e, d, next) => {
                 if ( e.target == sys.flow ) return;
                 e.stopPropagation();
                 if ( next == null ) {
-                    r.ptr[0] = r.ptr[0].next();
-                    r.ptr[0] ? r.ptr[0].trigger("enter", r, false) : this.trigger("reject", [r, next]);
+                    d.ptr[0] = d.ptr[0].next();
+                    d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject", [d, next]);
                 } else if ( table[next] ) {
-                    (r.ptr[0] = table[next]).trigger("enter", r, false);
+                    (d.ptr[0] = table[next]).trigger("enter", d, false);
                 } else {
-                    this.trigger("reject", [r, next]);
+                    this.trigger("reject", [d, next]);
                 }
             });
-            this.on("reject", (e, r, next) => {
-                r.ptr.shift();
+            this.on("reject", (e, d, next) => {
+                d.ptr.shift();
                 e.stopPropagation();
-                sys.flow.trigger("next", [r, next]);
+                sys.flow.trigger("next", [d, next]);
             });
         }
     },
@@ -69,6 +69,9 @@ $_().imports({
               </Flow>",
         opt: { root: __dirname, url: "/*" }, 
         map: { attrs: { status: "root", router: "url" } }
+    },
+    Router: {
+        map: { "extend": {"from": "router/Router"} }
     }
 });
 
@@ -82,12 +85,12 @@ $_("header").imports({
     },
     AddHeaders: {
         fun: function (sys, items, opts) {
-            this.on("enter", (e, obj) => {
+            this.on("enter", (e, d) => {
                 this.children().forEach(item => {
                     let o = item.value();
-                    obj.res.setHeader(o.key, o.value);
+                    d.res.setHeader(o.key, o.value);
                 });
-                this.trigger("next", obj);
+                this.trigger("next", d);
             });
         }
     }
@@ -102,14 +105,14 @@ $_("rewrite").imports({
             let table = [],
                 regexp = /\$(\d+)|(?::(\w+))/g,
                 toRegexp = require("path-to-regexp");
-            this.on("enter", (e, obj) => {
+            this.on("enter", (e, d) => {
                 for (item of table) {
-                    let m = item["from"].exec(obj.req.url);
+                    let m = item["from"].exec(d.req.url);
                     if ( !m ) continue;
-                    obj.url = item["to"].replace(regexp, (_, n, name) => {return m[item.map[name].index + 1]});
+                    d.url = item["to"].replace(regexp, (_, n, name) => {return m[item.map[name].index + 1]});
                     break;
                 }
-                this.trigger("next", obj);
+                this.trigger("next", d);
             });
             function toMap(params) {
                 var map = {};
@@ -157,10 +160,10 @@ $_("router").imports({
                 <i:Session id='session'/>\
               </main>",
         fun: function (sys, items, opts) {
-            this.on("enter", (e, r) => {
-                let data = items.cookie.parse(r.req.headers.cookie || ""),
+            this.on("enter", (e, d) => {
+                let data = items.cookie.parse(d.req.headers.cookie || ""),
                     obj = items.session.has(data.ssid);
-                obj ? (r.user = obj.data, this.trigger("next", r)) : this.trigger("reply", [r, -2]); 
+                obj ? (d.user = obj.data, this.trigger("next", d)) : this.trigger("reply", [d, -2]); 
             });
         }
     },
@@ -208,7 +211,7 @@ $_("router/parser").imports({
                     resolve(data);
                 }
             }
-            return req => {
+            return function (req) {
                 let data = '', resolve;
                 req.setEncoding('utf8');
                 req.on("data", chunk => data += chunk);
@@ -226,19 +229,19 @@ $_("router/location").imports({
                 <i:Session id='session'/>\
               </main>",
         fun: function (sys, items, opts) {
-            this.on("enter", (e, r) => {
-                let data = items.cookie.parse(r.req.headers.cookie || ""),
+            this.on("enter", (e, d) => {
+                let data = items.cookie.parse(d.req.headers.cookie || ""),
                     obj = items.session.has(data.ssid);
-                obj ? (r.user = obj.data, this.trigger("next", r)) : this.trigger("reject", r);
+                obj ? (d.user = obj.data, this.trigger("next", d)) : this.trigger("reject", d);
             });
         }
     },
     Redirect: {
         fun: function (sys, items, opts) {
-            this.on("enter", (e, r) => {
-                r.res.statusCode = 302;
-                r.res.setHeader("Location", opts["to"]);
-                this.trigger("reply", r);
+            this.on("enter", (e, d) => {
+                d.res.statusCode = 302;
+                d.res.setHeader("Location", opts["to"]);
+                this.trigger("reply", d);
             });
         }
     }
@@ -343,16 +346,16 @@ $_("static").imports({
     Status: {
         fun: function (sys, items, opts) {
             let fs = require("fs"), url = require("url"), path = require("path");
-            this.on("enter", async (e, r) => {
-                r.path = path.join(opts.root, url.parse(r.url).pathname);
-                r.ext = (path.extname(r.path) || ".txt").slice(1);
-                let s = await status(r.path);
+            this.on("enter", async (e, d) => {
+                d.path = path.join(opts.root, url.parse(d.url).pathname);
+                d.ext = (path.extname(d.path) || ".txt").slice(1);
+                let s = await status(d.path);
                 if ( s.err == null ) {
-                    s.stat.isFile() ? this.trigger("next", (r.stat = s.stat, r)) : this.trigger("reject", r);
+                    s.stat.isFile() ? this.trigger("next", (d.stat = s.stat, d)) : this.trigger("reject", d);
                 } else if (s.err.code == "ENOENT") {
-                    this.trigger("reject", r);
+                    this.trigger("reject", d);
                 } else {
-                    r.err = s.err, this.trigger("next", [r,"err500"]);
+                    d.err = s.err, this.trigger("next", [d,"err500"]);
                 }
             });
             function status(path) {
@@ -363,21 +366,21 @@ $_("static").imports({
     Cache: {
         opt: { file: /^(gif|png|jpg|js|css)$/ig, maxAge: 24 * 3600 * 365 },
         fun: function (sys, items, opts) {
-            this.on("enter", (e, r) => {
-                if ( r.ext.match(opts.file) ) {
+            this.on("enter", (e, d) => {
+                if ( d.ext.match(opts.file) ) {
                     let expires = new Date;
                     expires.setTime(Date.now() + opts.maxAge * 1000);
-                    r.res.setHeader("Expires", expires.toUTCString());
-                    r.res.setHeader("Cache-Control", "max-age=" + opts.maxAge);
+                    d.res.setHeader("Expires", expires.toUTCString());
+                    d.res.setHeader("Cache-Control", "max-age=" + opts.maxAge);
                 }
-                let lastModified = r.stat.mtime.toUTCString();
-                r.res.setHeader("Last-Modified", lastModified);
-                if ( r.req.headers["if-modified-since"] && lastModified == r.req.headers["if-modified-since"] ) {
-                    r.res.statusCode = 304;
-                    r.res.setHeader("Content-Type", "text/html");
-                    return r.res.end();
+                let lastModified = d.stat.mtime.toUTCString();
+                d.res.setHeader("Last-Modified", lastModified);
+                if ( d.req.headers["if-modified-since"] && lastModified == d.req.headers["if-modified-since"] ) {
+                    d.res.statusCode = 304;
+                    d.res.setHeader("Content-Type", "text/html");
+                    return d.res.end();
                 }
-                this.trigger("next", r);
+                this.trigger("next", d);
             });
         }
     },
@@ -385,38 +388,38 @@ $_("static").imports({
         fun: function (sys, items, opts) {
             let types = new Set(['css','js','html']),
                 fs = require("fs"), zlib = require("zlib");
-            this.on("enter", (e, r) => {
-                let encoding = r.req.headers['accept-encoding'] || "";
-                r.raw = fs.createReadStream(r.path);
-                if ( !types.has(r.ext) )
-                    return this.trigger("next", r);
+            this.on("enter", (e, d) => {
+                let encoding = d.req.headers['accept-encoding'] || "";
+                d.raw = fs.createReadStream(d.path);
+                if ( !types.has(d.ext) )
+                    return this.trigger("next", d);
                 if ( encoding.match(/\bgzip\b/) ) {
-                    r.compress = zlib.createGzip();
-                    r.res.setHeader("Content-Encoding", "gzip");
+                    d.compress = zlib.createGzip();
+                    d.res.setHeader("Content-Encoding", "gzip");
                 } else if ( encoding.match(/\bdeflate\b/) ) {
-                    r.compress = zlib.createDeflate();
-                    r.res.setHeader("Content-Encoding", "deflate");
+                    d.compress = zlib.createDeflate();
+                    d.res.setHeader("Content-Encoding", "deflate");
                 }
-                this.trigger("next", r);
+                this.trigger("next", d);
             });
         }
     }, 
     Output: {
         fun: function (sys, items, opts) {
             let mime = { css: "text/css", gif: "image/gif", htm: "text/html", html: "text/html", ico: "image/x-icon", jpeg: "image/jpeg", jpg: "image/jpeg", js: "text/javascript", json: "application/json", pdf: "application/pdf", png: "image/png", svg: "image/svg+xml", swf: "application/x-shockwave-flash", tiff: "image/tiff", txt: "text/plain", wav: "audio/x-wav", wma: "audio/x-ms-wma", wmv: "video/x-ms-wmv", xml: "text/xml", zip: "application/zip", appcache: "text/cache-manifest" };
-            this.on("enter", (e, r) => {
-                r.res.setHeader("Content-Type", mime[r.ext] || "unknow"); 
-                r.compress ? r.raw.pipe(r.compress).pipe(r.res) : r.raw.pipe(r.res);
+            this.on("enter", (e, d) => {
+                d.res.setHeader("Content-Type", mime[d.ext] || "unknow"); 
+                d.compress ? d.raw.pipe(d.compress).pipe(d.res) : d.raw.pipe(d.res);
             });
         }
     },
     Err500: {
         fun: function (sys, items, opts) {
             let util = require("util");
-            this.on("enter", (e, r) => {
-                r.res.statusCode = 500;
-                r.res.setHeader("Content-Type", "text/html");
-                r.res.end(util.inspect(r.err));
+            this.on("enter", (e, d) => {
+                d.res.statusCode = 500;
+                d.res.setHeader("Content-Type", "text/html");
+                d.res.end(util.inspect(d.err));
             });
         }
     }
