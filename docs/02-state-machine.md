@@ -2,19 +2,19 @@
 
 由于 xmlweb 是一个基于状态机理论设计的 web 服务器框架，所以在这一章需要讲清楚 xmlweb 中与状态机相关的节点与数据流的概念。在此后的几章内容都是围绕这两个概念进行阐述的。
 
-## 节点
+## 状态机节点
 
-状态机节点可以是任何侦听了 `enter` 事件的组件对象，如下面的组件对象可以看作状态机的一个节点：
+状态机节点可以是任何侦听了 `enter` 事件的组件对象，可以实例化为节点的组件称为状态机的节点组件，简称节点组件。如下面的 Index 组件是一个状态机的节点组件：
 
 ```js
-Home: {
+Index: {
     fun: function (sys, items, opts) {
         this.on("enter", (e, d) => console.log("hello, world"));
     }
 }
 ```
 
-另外，像 xmlweb 中内置的组件 Router、Rewrite 以及 AddHeaders 等都包含有侦听 `enter` 事件的代码，它们都可以实例化为状态机的节点使用。此外，状态机节点还可以是由组件 Flow 定义的组件对象，请看下面的组件示例：
+另外，像 xmlweb 中内置的组件 Router、Rewrite 以及 AddHeaders 等都包含有事件 `enter` 的侦听器，它们都可以实例化为状态机的节点使用。此外，状态机节点还可以是由组件 Flow 定义的组件对象，请看下面的组件示例：
 
 ```xml
 <i:Flow xmlns:i='//xmlweb'>
@@ -23,34 +23,45 @@ Home: {
 </i:Flow>
 ```
 
-此外，由组件 Http 定义的组件是状态机的一个节点，该节点是状态机的顶层节点。在一个应用中，由组件 Http 定义的节点组件只能有一个，它描述了HTTP 服务器的各项参数，如下面的示例所示：
+组件 Flow 内部也包含事件 `enter` 的侦听器，所以它也是一个节点组件。不过它比较特殊，它可以与子节点组件组合成一个状态机。
+
+与组件 Flow 类似，组件 Http 也是节点组件并且它可以与子节点组件组合成一个状态机。在一个 web 服务应用中，此节点组件只能只能有一个，且只能作为的顶层节点组件使用。如下面的示例所示：
 
 ```xml
 <i:Http listen="80" xmlns:i='//xmlweb'>
-    <Router url='/index.html' xmlns='//xmlweb/router'/>
+    <i:Router url='/index.html'/>
     <i:Static id='static'/>
 </i:Http>
 ```
 
-## 垂直数据流
+组件 Http 与组件 Flow 均位于命名空间 `//xmlweb` 中，组件 Http 包含一个静态参数 `listen`，此参数用于指明 web 应用服务的端口号，参数 `listen` 的默认值是 `8080`。
 
-数据流的数据是一个普通的 JSON 对象，它由 Http 组件对象生成，在初始状态它主要包含了一个请求对象的引用 `req`，以及一个响应对象的引用 `res`。在各个节点，你不应该对这两个对象做任何的改动。
+## 数据流
+
+数据流是一个普通的 JSON 对象，所谓普通对象指的是使用 `{}` 或 `new Object` 创建的对象。数据流由 Http 组件对象在接收到用户的请求时生成。在初始状态，它主要包含了如下的内容：
+
+- req：请求对象的引用 request
+- res：响应对象的引用 response
+- ptr：状态机内部使用的指针数组
+- url：与 req.url 一致
+
+在数据流经的各个节点，你不应该对前三个对象做任何的改动。
 
 默认情况下，状态机的数据流由事件 `next` 驱动并从上往下进行，这是将状态机组件取名为 Flow 的直接原因。如下面的示例所示：
 
 ```xml
-<i:Http xmlns:i='//xmlweb' xmlns:r="//xmlweb/router">
-    <r:Router id='router' url='/:id.html'/>
-    <Home id='home'/>
+<i:Http xmlns:i='//xmlweb'>
+    <i:Router id='router' url='/:id.html'/>
+    <Index id='index'/>
     <i:Static id='static'/>
 </i:Http>
 ```
 
-当此状态机接收具有模式 `/:id.html` 的 URL 请求时，数据流先进入组件对象 router。当 router 完成 URL 解码后派发事件 `next` 后，数据流进入组件对象 home。组件对象 home 完成数据的相关处理后派发事件 `next`，于是数据流最终达到组件对象 static。为了更清楚地认识这个过程，我们来看看组件 Home 的具体构造。
+当此状态机接收具有模式 `/:id.html` 的 URL 请求时，数据流先进入组件对象 router。在组件对象 router 完成 URL 解码后会派发事件 `next`，然后数据流进入组件对象 index。组件对象 index 完成数据的相关处理后派发事件 `next`，于是数据流最终达到组件对象 static。为了更清楚地认识这个过程，我们来看看组件 Index 的具体构造。
 
 ```js
-Home: {
-    xml: "<html id='home'>\
+Index: {
+    xml: "<html id='index'>\
             <body id='body'/>\
           </html>",
     fun: function (sys, items, opts) {
@@ -65,22 +76,22 @@ Home: {
 }
 ```
 
-组件 Home 的函数项部分主要根据传输来的数据生成 html 页面并将页面内容写入目录 `static`，然后交给静态服务器做最后的处理。注意，此示例仅用于展示垂直的数据流，并不包含完善的路由处理。故当你输入与模式串 `/:id.html` 不匹配的 URL 时，你将得不到任何你想要的反馈。
+组件 Index 的函数项部分主要根据传输来的数据生成 html 页面并将页面内容写入目录 `static`，然后交给静态服务器做最后的处理。注意，当你输入与模式串 `/:id.html` 不匹配的 URL 时，你将得到 xmlweb 内置的 404 页面。
 
 ## 数据流的跳转
 
-相对于默认的垂直的数据流，状态机允许在任一时刻跳转到任意的节点。我们通过一个示例来说明：
+相对于默认的垂直的数据流，状态机允许在任一时刻跳转到任意的已命名的状态机节点，下面我们通过一个示例来说明：
 
 ```xml
-<i:Http xmlns:i='//xmlweb' xmlns:r='//xmlweb/router'>
-    <r:Router url='/:id.html'/>
+<i:Http xmlns:i='//xmlweb'>
+    <i:Router url='/:id.html'/>
     <Filter id='filter'/>
-    <Home id='home'/>
+    <Index id='index'/>
     <i:Static id='static'/>
 </i:Http>
 ```
 
-该状态机比前面多了一个 Filter 节点，此节点用于过滤 id 值为 index 的请求，如果 id 值为 index，那么数据流将不再进入节点 Home，而是直接进入节点 Static。下面是组件 Filter 的具体实现：
+该状态机比前面多了一个 Filter 节点，此节点用于过滤 `id` 值为 `index` 的请求，也就是 url 为 `/index.html` 的请求。对于这种请求，数据流将不再进入节点 `index`，而是直接进入节点 `static`。下面给出组件 Filter 的具体实现：
 
 ```js
 Filter: {
@@ -92,20 +103,83 @@ Filter: {
 }
 ```
 
-正如组件 Filter 的函数项的内容所指出的，要完成数据流的跳转，需要在派发 `next` 事件时，在函数 `trigger` 的参数部分提供一个目的节点名。
+正如组件 Filter 的函数项的内容所指出的，要完成数据流的跳转，需要在派发 `next` 事件时，在函数 `trigger` 的参数部分提供一个目的状态机节点名。
 
 上述的数据流跳转是往前的跳转，然而数据流还可以往后跳转，或者直接跳转到组件自身，但一定要注意给定合适的终止条件以避免陷入死循环。
 
-使用事件 `next` 只能在本状态机的节点之间完成跳转，如果想跳出本状态机，则需要使用事件 `reject`。对于 `reject`，你可以理解为停机或者结束本状态机的运作。请看下面的示例：
+## 状态机停机
+
+在 xmlweb 中，状态机的停机指的是结束当前的状态机数据的流动，返回到上一层状态机。状态机的停机有两种情况，一种是由事件 `next` 导致的停机，请看下面的一个示例：
+
+```xml
+<i:Http id='http' listen='8080' xmlns:i='//xmlweb'>
+    <i:Router url='/:id.html'/>
+    <Index id='index'/>
+    <i:Static id='static'/>
+</i:Http>
+```
+
+该示例中，组件 Index 是一个子状态机，下面是它的视图项部分：
+
+```xml
+<i:Flow xmlns:i='//xmlweb'>
+    <SubIndex id='subindex'/>
+</i:Flow>
+```
+
+其中的 SubIndex 组件如下所示：
 
 ```js
-Filter: {
+SubIndex: {
     fun: function (sys, items, opts) {
-        this.on("enter", (e, d) => {
-            d.args.id == "index" ? this.trigger("reject", [d, "static"]) : this.trigger("next", d);
-        });
+        this.on("enter", (e, d) => this.trigger("next", d));
     }
 }
 ```
 
-该组件只是简单地将前面的 Filter 组件的 `next` 修改为 `reject`，此时数据流将不再跳转到本状态机的 `static` 节点，而跳转到上一级的 `static` 节点。不过需要注意，如果当前状态机是 Http 状态机，那么派发 `reject` 将会抛出一个错误。由于 Http 状态机已经是顶层节点了，如果再派发 `reject`，不可能会再有上层节点来处理该事件。
+组件 SubIndex 的 `enter` 事件的侦听器直接返回了 `next` 事件。然而节点 `subindex` 不存在后继节点，所以该事件的派发将导致该状态机停机，也就是直接返回到上一层级的状态机 Http，最终数据流会进入 static 节点。
+
+另一种停机由事件 `reject` 触发，该事件的派发将直接导致状态机停机，现修改组件 SubIndex 如下：
+
+```js
+SubIndex: {
+    fun: function (sys, items, opts) {
+        this.on("enter", (e, d) => this.trigger("reject", d));
+    }
+}
+```
+
+在示例中，该组件与上述的由事件 `next` 导致的停机效果是一样的，但如果子状态机是下面这样子：
+
+```xml
+<i:Flow xmlns:i='//xmlweb'>
+    <SubIndex id='subindex'/>
+    <i:Static id='static'/>
+</i:Flow>
+```
+
+那么，组件对象 subindex 的 `next` 事件的派发将不会导致停机，因为组件对象 subindex 有一个后继节点 `static`，数据流最终会进入节点 `static`。而事件 `reject` 的派发则不同，无论组件对象 subindex 是否拥有后继节点，都会导致当前状态机的停机发生。
+
+另外，如果上述的事件导致当前状态机的停机，并且 `trigger` 函数还携带目的节点名，那么当数据流回到上一层状态机时，会试图跳转到上层状态机的同名节点。若无此节点，则试图直接跳转到当前状态机节点的下一节点。请看下面的示例：
+
+```js
+SubIndex: {
+    fun: function (sys, items, opts) {
+        this.on("enter", (e, d) => this.trigger("reject", [d, "dynamic"]));
+    }
+}
+```
+
+该组件内部的侦听器在派发 `reject` 事件时，还携带目的节点名 `dynamic`。但当前状态机的上一层状态机并不包含名为 `dynamic` 的节点，所以最终数据流还是会进入 `static` 节点。
+
+最后需要说明的是，一个状态机停机事件发生并且数据流到达上一层状态机后，只要条件满足，上一层状态机还是会停机，这样就形成了停机事件的冒泡现象。
+
+前面说过，组件 Http 是一个比较特殊的状态机节点组件，它只能作为的顶层节点组件使用。如果在 Http 节点捕获到停机事件，那么 Http 节点将返回 xmlweb 返回内置的 404 页面。下面的一个简单的示例演示了这一点：
+
+```xml
+<i:Http listen='8080' xmlns:i='//xmlweb'>
+    <i:Static id='static'/>
+</i:Http>
+```
+
+如果该 web 服务接收到静态服务器 static 中不存在的文件请求，那么 Http 节点会捕获到来自 static 节点的停机事件，于是 Http 节点将返回 xmlweb 返回内置的 404 页面。

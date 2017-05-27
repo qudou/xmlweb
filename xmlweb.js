@@ -68,7 +68,7 @@ $_().imports({
                 <s:Err500 id='err500'/>\
               </Flow>",
         opt: { root: __dirname, url: "/*" }, 
-        map: { attrs: { status: "root", router: "url" } }
+        map: { attrs: { status: "root", router: "url" }, cfgs: { output: "mime" } }
     },
     Router: {
         map: { "extend": {"from": "router/Router"} }
@@ -406,7 +406,9 @@ $_("static").imports({
     }, 
     Output: {
         fun: function (sys, items, opts) {
-            let mime = { css: "text/css", gif: "image/gif", htm: "text/html", html: "text/html", ico: "image/x-icon", jpeg: "image/jpeg", jpg: "image/jpeg", js: "text/javascript", json: "application/json", pdf: "application/pdf", png: "image/png", svg: "image/svg+xml", swf: "application/x-shockwave-flash", tiff: "image/tiff", txt: "text/plain", wav: "audio/x-wav", wma: "audio/x-ms-wma", wmv: "video/x-ms-wmv", xml: "text/xml", zip: "application/zip", appcache: "text/cache-manifest" };
+            let mime = { css: "text/css", gif: "image/gif", htm: "text/html", html: "text/html", ico: "image/x-icon", jpeg: "image/jpeg", jpg: "image/jpeg", js: "text/javascript", json: "application/json", pdf: "application/pdf", png: "image/png", svg: "image/svg+xml", tiff: "image/tiff", txt: "text/plain", wav: "audio/x-wav", xml: "text/xml", zip: "application/zip" };
+            for ( let k in opts.mime )
+                mime[k] || (mime[k] = opts.mime[k]);
             this.on("enter", (e, d) => {
                 d.res.setHeader("Content-Type", mime[d.ext] || "unknow"); 
                 d.compress ? d.raw.pipe(d.compress).pipe(d.res) : d.raw.pipe(d.res);
