@@ -1,30 +1,30 @@
 # 静态服务器
 
-为了方便使用，xmlweb 内置了一个静态服务器的节点组件 Static。当然，在搭建 web 应用时，你也可以不使用它或者使用自定义的静态服务器的节点组件。
+为了方便使用，xmlweb 内置了一个简单的静态服务器的节点组件 Static。当然，在搭建 web 应用时，你可以不使用它或者使用自定义的静态服务器的节点组件。
 
 ## 静态接口
 
 为了了解清楚该组件是如何使用的，我们从该组件应用的一个最简单的示例开始：
 
 ```xml
-<i:Http xmlns:i='//xmlweb'>
+<i:HTTP xmlns:i='//xmlweb'>
     <i:Static id='static'/>
-</i:Http>
+</i:HTTP>
 ```
 
-该示例尽管简单，但它可以正常工作，下面是一些可以提供的静态接口属性：
+该静态 web 服务器侦听 8080 端口，并以代码所在的文件目录为工作目录。该示例尽管简单，但它可以正常工作，下面是一些可以提供的静态接口属性：
 
-- url：允许接受的请求路径，默认为 '/*'
-- root：工作目录，默认为代码所在的当前目录
-- mime：额外的 MIME 类型
+- `url`: `String` 允许接受的请求路径，默认为 '/*'
+- `root`：`String` 工作目录，默认为代码所在的文件目录
+- `mime`：`PlainObject` 额外的 MIME 类型
 
 上述的 mime 属性需要结合示例说明下：
 
 ```js
 Index: {
-    xml: "<i:Http xmlns:i='//xmlweb'>\
+    xml: "<i:HTTP xmlns:i='//xmlweb'>\
             <i:Static id='static'/>\
-          </i:Http>",
+          </i:HTTP>",
     cfg: { static: {mime: {mp3: "audio/mpeg"}} },
     fun: function (sys, items, opts) {
         this.on("enter", (e, d) => console.log("hello, world"));
@@ -67,7 +67,7 @@ Index: {
 </Flow>
 ```
 
-从此视图项可以看出，该状态机组件包含若干个子节点组件，下面给出各子节点组件的基本功用：
+从此视图项可以看出，该状态机组件包含若干个子节点组件，下面是各子节点组件的基本用途：
 
 - Router：过滤掉所有的非 GET 请求
 - Status：获取目录文件的状态属性，如果文件不允许访问，会导致状态机停机
@@ -78,20 +78,20 @@ Index: {
 
 ## 自定义 404 页面
 
-Static 组件节点对不存在的 URL 请求会导致停机，从而将后续处理交给 Http 组件节点，而 Http 组件节点的处理方式是返回一个简单的 404 页面。我们如果想返回不一样的 404 页面，那么可以自己定义一个组件节点并将其作为 Static 组件节点的后继。如下面的示例所示：
+Static 组件节点对不存在的 URL 请求会导致停机，从而将后续处理交给 HTTP 组件节点，而 HTTP 组件节点的处理方式是返回一个简单的 404 页面。我们如果想返回不一样的 404 页面，那么可以自己定义一个组件节点并将其作为 Static 组件节点的后继。如下面的示例所示：
 
 ```xml
-<i:Http xmlns:i='//xmlweb'>
+<i:HTTP xmlns:i='//xmlweb'>
     <i:Static id='static'/>
     <NotFound id='notfound'/>
-</i:Http>
+</i:HTTP>
 ```
 
-此示例的 NotFound 组件的定义如下：
+此示例中，所有的 404 响应都会由 NotFound 组件节点完成。该组件的具体定义如下：
 
 ```js
 NotFound: {
-    xml: "<h1>This is not the page you are looking for.</h1>"
+    xml: "<h1>This is not the page you are looking for.</h1>",
     fun: function (sys, items, opts) {
         this.on("enter", (e, r) => {
             r.res.statusCode = 404;
@@ -102,4 +102,4 @@ NotFound: {
 }
 ```
 
-当然，这个自定义组件返回的 404 页面非常简单，你可以进一步修改成你想要的样子。
+当然，这个自定义组件返回的 404 页面还是非常简单的，你可以进一步修改成你想要的样子。

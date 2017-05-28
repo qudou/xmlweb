@@ -9,7 +9,7 @@ let xmlplus = require("xmlplus");
 xmlplus("xmlweb", (xp, $_, t) => {
 
 $_().imports({
-    Http: {
+    HTTP: {
         map: { format: { "int": "listen" } },
         fun: function (sys, items, opts) {
             let first = this.first(),
