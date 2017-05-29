@@ -16,7 +16,7 @@ $_().imports({
                 table = this.find("./*[@id]").hash();
             this.on("next", (e, d, next) => {
                 d.ptr[0] = table[next] || d.ptr[0].next();
-                d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject");
+                d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject", d);
             });
             this.on("reject", (e, d) => {
 				d.res.statusCode = 404;
@@ -67,7 +67,7 @@ $_().imports({
                 <s:Output id='output'/>\
                 <s:Err500 id='err500'/>\
               </Flow>",
-        opt: { root: __dirname, url: "/*" }, 
+        opt: { root: ".", url: "/*" }, 
         map: { attrs: { status: "root", router: "url" }, cfgs: { output: "mime" } }
     },
     Router: {

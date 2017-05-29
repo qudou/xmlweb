@@ -7,6 +7,7 @@
 路由组件 Router 有一静态参数 `mothod` 用于指明接受的是 GET 请求还是 POST 请求。其中，默认的请求方式是 GET。如下面的示例所示，该 web 服务仅接收路径为 `/index.html` 的 GET 请求。
 
 ```xml
+<!-- 04-01 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/index.html'/>
     <i:Static id='static'/>
@@ -16,13 +17,32 @@
 此 web 服务对于不符合要求的请求会导致服务返回内置的 404 页面。再请看下面的一个 POST 请求示例：
 
 ```xml
+<!-- 04-02 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/*' method='POST'/>
-    <Index id='index'/>
+    <Response id='response'/>
 </i:HTTP>
 ```
 
-该 web 服务接受任何路径的 POST 请求，但不接收任何的 POST 请求。同样一旦接收到不符合要求的请求会导致服务返回内置的 404 页面。
+该 web 服务接受任何路径的 POST 请求，但不接收任何的 POST 请求。同样一旦接收到不符合要求的请求会导致服务返回内置的 404 页面。下面是组件 Response 的函数项：
+
+```js
+// 04-02
+function (sys, items, opts) {
+    this.on("enter", (e, d) => {
+        d.res.setHeader("Content-Type", "application/json;");
+        d.res.end(JSON.stringify({data: "hello, world"}));
+    });
+}
+```
+
+为了避免由于跨域请求所带来的问题，你可以使用如下的 `curl` 命令来完成 POST 请求的测试：
+
+```bash
+curl -X POST http://localhost:8080
+```
+
+当然，要测试 GET 请求所返回的结果，只需要把上面命令行的 POST 该为 GET 即可。
 
 ## 路径匹配
 
