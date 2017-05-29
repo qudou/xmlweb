@@ -156,3 +156,5 @@ function (sys, items, opts) {
 ```bash
 $ curl -H "Content-type: application/json" -X POST -d '{"key":"2017"}' http://localhost:8080
 ```
+
+有时你需要自己处理请求报文的主体信息，那么你可以设置 Router 组件的静态参数 `usebody` 为 `false` 来禁止对主体信息的解析。
