@@ -39,7 +39,7 @@ function (sys, items, opts) {
 为了避免由于跨域请求所带来的问题，你可以使用如下的 `curl` 命令来完成 POST 请求的测试：
 
 ```bash
-curl -X POST http://localhost:8080
+$ curl -X POST http://localhost:8080
 ```
 
 当然，要测试 GET 请求所返回的结果，只需要把上面命令行的 POST 该为 GET 即可。
@@ -55,44 +55,53 @@ curl -X POST http://localhost:8080
 - 自定义参数：可以是任何的合法的正则表达式的字符串表示，如 '/:key(\\w+)'
 - 星号：星号 '*' 用于匹配一切子级路径，如 '/:key/*'
 
-例如，下面的 web 服务应用可以接受路径为 `/` 或者任何以 `/` 开头的 GET 请求：
+例如，下面的 web 服务应用可以接受路径为 `/o` 或者任何以 `/o` 开头的 GET 请求：
 
 ```xml
+<!-- 04-03 -->
 <i:HTTP xmlns:i='//xmlweb'>
-    <i:Router url='/:key?'/>
-    <i:Static id='static'/>
+    <i:Router url='/o:key?'/>
+    <Response id='response'/>\
 </i:HTTP>
 ```
 
 再如，下面的 web 服务应用可以接受路径为 `/helo` 或者 `/hello` 的 GET 请求：
 
 ```xml
+<!-- 04-04 -->
 <i:HTTP xmlns:i='//xmlweb'>
-    <i:Router url='/he?lo'/>
-    <i:Static id='static'/>
+    <i:Router url='/he(l?)lo'/>
+    <Response id='response'/>\
 </i:HTTP>
 ```
+
+注意，上面的模式串不能写成 `/hel?lo`，否则问号会被当成字符处理。
 
 ## 命名参数值的获取
 
 如果静态参数 url 中包含有命名参数，那么数据流经 Router 组件节点时，各命名参数相应的值将会被解析出来作为一个 JSON 对象赋值给数据流的子参数 `args`。请看下面的一个示例：
 
 ```xml
+<!-- 04-05 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/:foo/:bar'/>
-    <i:Static id='static'/>
+    <Response id='response'/>\
 </i:HTTP>
 ```
 
 该示例的 Index 组件的函数项的具体内容如下：
 
 ```js
+// 04-05
 function (sys, items, opts) {
-    this.on("enter", (e, d) => console.log(d.args));
+    this.on("enter", (e, d) => {
+        d.res.setHeader("Content-Type", "text/html");
+        d.res.end(JSON.stringify(d.args));
+    });
 }
 ```
 
-运行这个示例，如果输入的 url 是 `http://localhost:81/alice/bob`，那么你在控制台将会看到如下的输出：
+运行这个示例，如果输入的 url 是 `http://localhost:81/alice/bob`，那么你将会看到如下的输出：
 
 ```json
 { "foo": "alice", "bar": "bob" }
@@ -103,35 +112,47 @@ function (sys, items, opts) {
 与命名参数值的获取类似，GET 请求数据的获取也是由数据流的子参数 `args` 参数得到的。现在让我们对上面的示例做点修改：
 
 ```xml
+<!-- 04-06 -->
 <i:HTTP xmlns:i='//xmlweb'>
-    <i:Router url='/:foo?bar=bob'/>
-    <Index id='index'/>
+    <i:Router url='/:foo\\?bar=:bar'/>
+    <Response id='response'/>\
 </i:HTTP>
 ```
 
-该示例的 Index 组件的函数项的与前面的一致。运行这个示例，如果输入的 url 是 `http://localhost:81/alice?bar=bob`，那么你在控制台将会看到与前一个示例一样的输出：
+该示例的 Response 组件的函数项的与前面的一致。运行这个示例，如果输入的 url 是 `http://localhost:81/alice?bar=bob`，那么你将会看到与前一个示例一样的输出：
 
 ```json
 { "foo": "alice", "bar": "bob" }
 ```
 
+另外要注意，示例中的模式串对问号必需加双斜杆，否则该问号将对前面的 `foo` 起作用。
+
 ## POST 请求数据的获取
 
-与 GET 请求不同，如果是 POST 请求，想得到该请求传输上来的数据，需要设置 Router 组件对象的 `usebody` 属性为真值才行。也就是说，默认情况下，你获取不到 POST 数据。POST 数据被解析出来后赋值给数据流的子参数 `body`。如果 POST 的数据符合 JSON 格式，将会被预解析为一个 JSON 对象，否则将作为字符串赋值。请看下面的示例：
+与 GET 请求不同，如果是 POST 请求，你不但可以获取到上述的两类数据，还可以得到请求报文的主体信息。该信息被解析出来后会赋值给数据流的子参数 `body`。请看下面的示例：
 
 ```xml
+<!-- 04-07 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/' method='POST'/>
-    <Index id='index'/>
+    <Response id='response'/>\
 </i:HTTP>
 ```
 
-该示例的 Index 组件的函数项的具体内容如下：
+该示例的 Response 组件的函数项的具体内容如下：
 
 ```js
+// 04-07
 function (sys, items, opts) {
-    this.on("enter", (e, d) => console.log(d.body));
+    this.on("enter", (e, d) => {
+        d.res.setHeader("Content-Type", "text/html");
+        d.res.end(JSON.stringify(d.body));
+    });
 }
 ```
 
-在客户端，如果你 POST 上来的数据为 `{'key': '0'}`，那么你在 Index 组件节点中将得到一个 JSON 对象；反之，如果你 POST 上来的数据为 `hello, world`，那么你在 Index 组件节点中将得到一个字符串。
+为了避免由于跨域请求所带来的问题，你可以使用如下的 `curl` 命令来完成 POST 请求的测试：
+
+```bash
+$ curl -H "Content-type: application/json" -X POST -d '{"key":"2017"}' http://localhost:8080
+```

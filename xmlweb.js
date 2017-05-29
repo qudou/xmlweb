@@ -139,7 +139,7 @@ $_("router").imports({
                 <i:ParseURL id='url'/>\
                 <i:ParseBody id='body'/>\
               </main>",
-        opt: { url: "/", method: "POST", usebody: true },
+        opt: { url: "/", method: "GET", usebody: true },
         map: { attrs: {"url": "url"}, format: {"bool": "usebody"} },
         fun: function (sys, items, opts) {
             this.on("enter", async (e, d) => {
@@ -215,7 +215,9 @@ $_("router/parser").imports({
                 let data = '', resolve;
                 req.setEncoding('utf8');
                 req.on("data", chunk => data += chunk);
-                req.on("end", () => parse(data, resolve));
+                req.on("end", () => {
+                    req.headers["content-type"] == "application/json" ? parse(data, resolve) : resolve(data);
+                });
                 return new Promise(resolve_ => resolve = resolve_);
             };
         }
