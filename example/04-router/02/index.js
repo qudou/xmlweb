@@ -1,6 +1,7 @@
-let xmlweb = require("xmlweb");
 // get test: curl -X GET http://localhost:8080
 // post test: curl -X POST http://localhost:8080
+
+let xmlweb = require("xmlweb");
 xmlweb("xp", function (xp, $_, t) {
     $_().imports({
         Index: {
