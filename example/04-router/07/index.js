@@ -1,3 +1,5 @@
+// $ curl -H "Content-type: application/json" -X POST -d '{"key":"2017"}' http://localhost:8080
+
 let xmlweb = require("xmlweb");
 xmlweb("xp", function (xp, $_, t) {
     $_().imports({
