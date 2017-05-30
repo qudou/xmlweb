@@ -219,7 +219,7 @@ Next: {
 组件 Hello 的定义如下：
 
 ```js
-<!-- 02-09 -->
+// 02-09
 Hello: {
     fun: function (sys, items, opts) {
         this.on("enter", (e, d) => this.trigger("reject", d));
