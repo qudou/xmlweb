@@ -70,25 +70,62 @@ $_().imports({
         opt: { root: ".", url: "/*" }, 
         map: { attrs: { status: "root", router: "url" }, cfgs: { output: "mime" } }
     },
+    AddHeader: {
+        map: { "extend": {"from": "header/AddHeader"} }
+    },
     Router: {
-        map: { "extend": {"from": "router/Router"} }
+        xml: "<main id='router' xmlns:i='/router'>\
+                <i:ParseURL id='url'/>\
+                <i:ParseBody id='body'/>\
+              </main>",
+        opt: { url: "/", method: "GET", usebody: true },
+        map: { attrs: {"url": "url"}, format: {"bool": "usebody"} },
+        fun: function (sys, items, opts) {
+            this.on("enter", async (e, d) => {
+                if ( d.req.method != opts.method )
+                    return this.trigger("reject", d);
+                d.args = items.url(d.req.url);
+                if ( d.args == false )
+                    return this.trigger("reject", d);
+                if ( d.req.method == "POST" && opts.usebody )
+                    d.body = await items.body(d.req);
+                this.trigger("next", d);
+            });
+        }
     },
     Rewrite: {
         map: { "extend": {"from": "rewrite/Rewrite"} }
+    },
+    Redirect: {
+        fun: function (sys, items, opts) {
+            let table = {
+                "301": "Moved Permanently",
+                "302": "Found",
+                "303": "See Other",
+                "307": "Temporary Redirect"
+            };
+            let statusCode = table[opts.statusCode] ? opts.statusCode : "302";
+            this.on("enter", (e, d) => {
+                d.res.statusCode = statusCode;
+                d.res.setHeader("Location", opts["to"]);
+                d.res.end(table[statusCode]);
+            });
+        }
     }
 });
 
 $_("header").imports({
     Header: {
         xml: "<span id='span'/>",
-        map: { attrs: { span: "from to" } },
+        map: { attrs: { span: "key value" } },
         fun: function (sys, items, opts) {
             return opts;
         }
     },
-    AddHeaders: {
+    AddHeader: {
         fun: function (sys, items, opts) {
             this.on("enter", (e, d) => {
+                opts.key && d.res.setHeader(opts.key, opts.value);
                 this.children().forEach(item => {
                     let o = item.value();
                     d.res.setHeader(o.key, o.value);
@@ -101,7 +138,11 @@ $_("header").imports({
 
 $_("rewrite").imports({
     Roule: {
-        map: { extend: { "from": "/header/Header" } }
+        xml: "<span id='span'/>",
+        map: { attrs: { span: "from to" } },
+        fun: function (sys, items, opts) {
+            return opts;
+        }
     },
     Rewrite: {
         fun: function (sys, items, opts) {
@@ -137,50 +178,6 @@ $_("rewrite").imports({
 });
 
 $_("router").imports({
-    Router: {
-        xml: "<main id='router' xmlns:i='/router/parser'>\
-                <i:ParseURL id='url'/>\
-                <i:ParseBody id='body'/>\
-              </main>",
-        opt: { url: "/", method: "GET", usebody: true },
-        map: { attrs: {"url": "url"}, format: {"bool": "usebody"} },
-        fun: function (sys, items, opts) {
-            this.on("enter", async (e, d) => {
-                if ( d.req.method != opts.method )
-                    return this.trigger("reject", d);
-                d.args = items.url(d.req.url);
-                if ( d.args == false )
-                    return this.trigger("reject", d);
-                if ( d.req.method == "POST" && opts.usebody )
-                    d.body = await items.body(d.req);
-                this.trigger("next", d);
-            });
-        }
-    },
-    Session: {
-        xml: "<main xmlns:i='/session'>\
-                <i:Cookie id='cookie'/>\
-                <i:Session id='session'/>\
-              </main>",
-        fun: function (sys, items, opts) {
-            this.on("enter", (e, d) => {
-                let data = items.cookie.parse(d.req.headers.cookie || ""),
-                    obj = items.session.has(data.ssid);
-                obj ? (d.user = obj.data, this.trigger("next", d)) : this.trigger("reply", [d, -2]); 
-            });
-        }
-    },
-    Location: {
-        xml: "<x:Flow xmlns:x='/' xmlns:l='location'>\
-                 <Router id='router' method='GET'/>\
-                 <l:Validate id='validate'/>\
-                 <l:Redirect id='redirect'/>\
-              </x:Flow>",
-        map: { attrs: {router: "from->url", redirect: "to"} }
-    }
-});
-
-$_("router/parser").imports({
     ParseURL: {
         fun: function (sys, items, opts) {
             let pathRegexp = require("path-to-regexp"),
@@ -223,31 +220,6 @@ $_("router/parser").imports({
                 });
                 return new Promise(resolve_ => resolve = resolve_);
             };
-        }
-    }
-});
-
-$_("router/location").imports({
-    Validate: {
-        xml: "<main xmlns:i='/session'>\
-                <i:Cookie id='cookie'/>\
-                <i:Session id='session'/>\
-              </main>",
-        fun: function (sys, items, opts) {
-            this.on("enter", (e, d) => {
-                let data = items.cookie.parse(d.req.headers.cookie || ""),
-                    obj = items.session.has(data.ssid);
-                obj ? (d.user = obj.data, this.trigger("next", d)) : this.trigger("reject", d);
-            });
-        }
-    },
-    Redirect: {
-        fun: function (sys, items, opts) {
-            this.on("enter", (e, d) => {
-                d.res.statusCode = 302;
-                d.res.setHeader("Location", opts["to"]);
-                this.trigger("reply", d);
-            });
         }
     }
 });
