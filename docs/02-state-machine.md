@@ -103,8 +103,8 @@ Creater: {
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/:id.html'/>
     <Jump id='jump'/>
-    <Return id='page1' text='hello'/>
-    <Return id='page2' text='world'/>
+    <Response id='page1' text='hello'/>
+    <Response id='page2' text='world'/>
 </i:HTTP>
 ```
 

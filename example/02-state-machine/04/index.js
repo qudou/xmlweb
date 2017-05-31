@@ -5,8 +5,8 @@ xmlweb("xp", function (xp, $_, t) {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
                     <i:Router url='/:id.html'/>\
                     <Jump id='jump'/>\
-                    <Return id='page1' text='hello'/>\
-                    <Return id='page2' text='world'/>\
+                    <Response id='page1' text='hello'/>\
+                    <Response id='page2' text='world'/>\
                   </i:HTTP>"
         },
         Jump: {
@@ -17,7 +17,7 @@ xmlweb("xp", function (xp, $_, t) {
                 });
             }
         },
-        Return: {
+        Response: {
             fun: function (sys, items, opts) {
                 this.on("enter", (e, d) => {
                     d.res.setHeader("Content-Type", "text/html");

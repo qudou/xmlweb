@@ -7,12 +7,13 @@
 为了了解清楚该组件是如何使用的，我们从该组件应用的一个最简单的示例开始：
 
 ```xml
+<!-- 04-01 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Static id='static'/>
 </i:HTTP>
 ```
 
-该静态 web 服务器侦听 8080 端口，并以代码所在的文件目录为工作目录。该示例尽管简单，但它可以正常工作，下面是一些可以提供的静态接口属性：
+该静态 web 服务器侦听 8080 端口，并以代码所在的文件目录为工作目录。当然，你最好给它设置一个独立的工作目录。该示例尽管简单，但它可以正常工作，下面是一些可以提供的静态接口属性：
 
 - `url`: `String` 允许接受的请求路径，默认为 '/*'
 - `root`：`String` 工作目录，默认为代码所在的文件目录
@@ -21,14 +22,12 @@
 上述的 mime 属性需要结合示例说明下：
 
 ```js
+// 04-02
 Index: {
     xml: "<i:HTTP xmlns:i='//xmlweb'>\
             <i:Static id='static'/>\
           </i:HTTP>",
-    cfg: { static: {mime: {mp3: "audio/mpeg"}} },
-    fun: function (sys, items, opts) {
-        this.on("enter", (e, d) => console.log("hello, world"));
-    }
+    cfg: { "static": {mime: {mp3: "audio/mpeg"}} }
 }
 ```
 
@@ -81,6 +80,7 @@ Index: {
 Static 组件节点对不存在的 URL 请求会导致停机，从而将后续处理交给 HTTP 组件节点，而 HTTP 组件节点的处理方式是返回一个简单的 404 页面。我们如果想返回不一样的 404 页面，那么可以自己定义一个组件节点并将其作为 Static 组件节点的后继。如下面的示例所示：
 
 ```xml
+<!-- 04-03 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Static id='static'/>
     <NotFound id='notfound'/>
@@ -90,6 +90,7 @@ Static 组件节点对不存在的 URL 请求会导致停机，从而将后续处理交给 HTTP 组件节点，
 此示例中，所有的 404 响应都会由 NotFound 组件节点完成。该组件的具体定义如下：
 
 ```js
+// 04-03
 NotFound: {
     xml: "<h1>This is not the page you are looking for.</h1>",
     fun: function (sys, items, opts) {
