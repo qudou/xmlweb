@@ -72,6 +72,9 @@ $_().imports({
     },
     Router: {
         map: { "extend": {"from": "router/Router"} }
+    },
+    Rewrite: {
+        map: { "extend": {"from": "rewrite/Rewrite"} }
     }
 });
 
