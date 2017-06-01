@@ -70,16 +70,13 @@ $_().imports({
         opt: { root: ".", url: "/*" }, 
         map: { attrs: { status: "root", router: "url" }, cfgs: { output: "mime" } }
     },
-    AddHeader: {
-        map: { "extend": {"from": "header/AddHeader"} }
-    },
     Router: {
         xml: "<main id='router' xmlns:i='/router'>\
                 <i:ParseURL id='url'/>\
                 <i:ParseBody id='body'/>\
               </main>",
-        opt: { url: "/", method: "GET", usebody: true },
-        map: { attrs: {"url": "url"}, format: {"bool": "usebody"} },
+        opt: { url: "/", method: "GET", usebody: true, usecookie: false },
+        map: { attrs: {"url": "url"}, format: {"bool": "usebody usecookie"} },
         fun: function (sys, items, opts) {
             this.on("enter", async (e, d) => {
                 if ( d.req.method != opts.method )
@@ -111,27 +108,25 @@ $_().imports({
                 d.res.end(table[statusCode]);
             });
         }
-    }
-});
-
-$_("header").imports({
-    Header: {
-        xml: "<span id='span'/>",
-        map: { attrs: { span: "key value" } },
-        fun: function (sys, items, opts) {
-            return opts;
-        }
     },
-    AddHeader: {
+    Session: {
+        xml: "<main id='session' xmlns:i='session'>\
+                <i:Cookie id='cookie'/>\
+                <i:Manager id='manager'/>\
+              </main>",
+        map: { attrs: { cookie: "maxAge secure httpOnly", manager: "maxAge" } },
         fun: function (sys, items, opts) {
             this.on("enter", (e, d) => {
-                opts.key && d.res.setHeader(opts.key, opts.value);
-                this.children().forEach(item => {
-                    let o = item.value();
-                    d.res.setHeader(o.key, o.value);
-                });
+                d.cookies = items.cookie.parse(d.req.headers.cookie);
+                d.session = items.manager.has(d.cookies.ssid);
+                if ( !d.session ) {
+                    d.session = items.manager.generate();
+                    d.res.setHeader("Set-Cookie", [items.cookie.serialize("ssid", d.session.ssid)]);
+                }
                 this.trigger("next", d);
             });
+            this.watch("save-session", (e, ssid) => items.manager.save(ssid));
+            this.watch("destroy-session", (e, ssid) => items.manager.destroy(ssid));
         }
     }
 });
@@ -233,9 +228,9 @@ $_("session").imports({
                     return decodeURIComponent(str);
                 } catch (e) { return str };
             }
-            function parse( str ) {
+            function parse( cookies ) {
                 let o, obj = {}, pair = /(.*?)=(.*?)(;|$)/g;
-                while ( (o = pair.exec(str)) )
+                while ( (o = pair.exec(cookies)) )
                     obj[o[1].trim()] = decode(o[2].trim());
                 return obj;
             }
@@ -257,61 +252,62 @@ $_("session").imports({
             return { parse: parse, serialize: serialize };
         }
     },
-    Session: {
+    Manager: {
         xml: "<Storage id='storage'/>",
-        map: { format: { "int": "interval timeToLive" } },
-        opt: { interval: 60 * 1000, timeToLive: 24 * 3600 * 1000 },
+        map: { format: { "int": "interval maxAge" } },
+        opt: { interval: 60 * 1000, maxAge: 24 * 3600 * 1000 },
         fun: function (sys, items, opts) {
-            let table = {}, crypto = require("crypto-js");
-            function has( val ) {
-                return table[val];
+            let table = {}, uid = require('uid-safe').sync;
+            function has(ssid) {
+                return table[ssid];
             }
-            function generate( data ) {
-                let ssid = crypto.lib.WordArray.random(48).toString();
-                table[ssid] = { data: data, createtime: Date.now() };
-                items.storage.save(ssid, table[ssid].createtime, data);
-                return ssid;
-            } 
-            function destroy( val ) {
-                if ( !table[val] ) return;
-                delete table[val];
-                items.storage.remove(val);
+            function generate() {
+                let ssid = uid(24);
+                table[ssid] = { createtime: Date.now(), ssid: ssid };
+                return table[ssid];
+            }
+            function destroy( ssid ) {
+                if ( !table[ssid] ) return;
+                delete table[ssid];
+                items.storage.remove(ssid);
+            }
+            function save( ssid ) {
+                table[ssid] && items.storage.save(ssid, table[ssid]);
             }
             setInterval(() => {
                 let key, keyMap = [], now = Date.now();
                 for ( key in table )
-                    if (now - table[key].createtime > opts.timeToLive )
+                    if (now - table[key].createtime > opts.maxAge )
                         keyMap.push(key);
                 keyMap.forEach(destroy);
             }, opts.interval);
             items.storage.load();
             this.on("session-loaded", (e, data) => table = data);
-            return { has: has, generate: generate, destroy: destroy };
+            return { has: has, generate: generate, save: save, destroy: destroy };
         }
     },
     Storage: {
         xml: "<main id='storage'/>",
         fun: function (sys, items, opts) {
             let table = {}, fs = require("fs");
-            function load() {
-                fs.stat("session", onload);
+            function save( ssid, session ) {
+                write(table[ssid] = session);
             }
-            function save( val, createtime, data ) {
-                write(table[val] = { data: data, createtime: createtime });
-            }
-            function remove( val ) {
-                delete table[val]; write();
-            }
-            function onload( err, stat ) {
-                if ( err == null )
-                    table = JSON.parse(fs.readFileSync("session"));
-                else if (err.code != "ENOENT")
-                    throw err;
-                sys.storage.trigger("session-loaded", table, false);
+            function remove( ssid ) {
+                delete table[ssid]; write();
             }
             function write() {
                 fs.writeFile("session", JSON.stringify(table), err => {
                     if ( err ) throw err;
+                });
+            }
+            function load() {
+                fs.stat("session", (err, stat) => {
+                    if ( err == null )
+                        table = JSON.parse(fs.readFileSync("session"));
+                    else if (err.code != "ENOENT")
+                        throw err;
+                    sys.storage.trigger("session-loaded", table, false);
                 });
             }
             return { load: load, save: save, remove: remove };

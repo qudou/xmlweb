@@ -31,10 +31,9 @@ let xmlweb = require("xmlweb");
 xmlweb("xp", function (xp, $_, t) {
     $_().imports({
         Index: {
-            xml: "<i:Http listen='81' xmlns:i='//xmlweb'>\
+            xml: "<i:HTTP xmlns:i='//xmlweb'>\
                     <i:Static id='static' root='static'/>\
-                    <i:NotFound id='notfound'/>\
-                  </i:Http>",
+                  </i:HTTP>",
             fun: function (sys, items, opts) {
                 console.log("service is ready");
             }
@@ -45,10 +44,10 @@ xmlweb("xp", function (xp, $_, t) {
 
 注意到示例开头的一个注释 `00-01`，那么你可以根据此注释定位到目录 `/example/00/`，注释中的 `00` 即章节序，`01` 就是示例所在目录的名称。
 
-在测试此示例之前，你需要在代码文件所在的当前目录创建一个名为 `static` 的子目录作为静态 web 服务器的根目录，并且在根目录下创建一个简单的 html 文件，假设该文件的名称为 `index.html`。那么，你可以在浏览器中输入如下的 URL 来访问刚才创建的文件。除了这个地址外，任何的其它的输入都会返回一个内置的简单的 `404` 页面。
+在测试此示例之前，你需要在代码文件所在的当前目录创建一个名为 `static` 的子目录作为静态 web 服务器的根目录，并且在根目录下创建一个简单的 HTML 文件，假设该文件的名称为 `index.html`。那么，你可以在浏览器中输入如下的 URL 来访问刚才创建的文件。
 
 ```
-http://localhost:81/index.html
+http://localhost:8080/index.html
 ```
 
-要理解这个示例是如何工作的，你需要注意组件 Index 的视图项部分。此视图项包含一个 Http 组件、一个 Static 组件以及一个 NotFound 组件。当一个请求到来时，Http 会生成一个数据流。此数据流先会拜访组件 static，如果静态目录中存在请求文件，则返回此文件内容，否则数据流会进入组件对象 notfound，组件对象 notfound 简单地返回请求的资源不存在的提示。
+除了这个地址外，任何的其它的输入都会返回一个内置的简单的 `404` 页面。

@@ -7,7 +7,7 @@
 路由组件 Router 有一静态参数 `mothod` 用于指明接受的是 GET 请求还是 POST 请求。其中，默认的请求方式是 GET。如下面的示例所示，该 web 服务仅接收路径为 `/index.html` 的 GET 请求。
 
 ```xml
-<!-- 03-01 -->
+<!-- 02-01 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/index.html'/>
     <i:Static id='static'/>
@@ -17,7 +17,7 @@
 此 web 服务对于不符合要求的请求会导致服务返回内置的 404 页面。再请看下面的一个 POST 请求示例：
 
 ```xml
-<!-- 03-02 -->
+<!-- 02-02 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/*' method='POST'/>
     <Response id='response'/>
@@ -27,7 +27,7 @@
 该 web 服务接受任何路径的 POST 请求，但不接收任何的 POST 请求。同样一旦接收到不符合要求的请求会导致服务返回内置的 404 页面。下面是组件 Response 的函数项：
 
 ```js
-// 03-02
+// 02-02
 function (sys, items, opts) {
     this.on("enter", (e, d) => {
         d.res.setHeader("Content-Type", "application/json;");
@@ -58,7 +58,7 @@ $ curl -X POST http://localhost:8080
 例如，下面的 web 服务应用可以接受路径为 `/o` 或者任何以 `/o` 开头的 GET 请求：
 
 ```xml
-<!-- 03-03 -->
+<!-- 02-03 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/o:key?'/>
     <Response id='response'/>\
@@ -68,7 +68,7 @@ $ curl -X POST http://localhost:8080
 再如，下面的 web 服务应用可以接受路径为 `/helo` 或者 `/hello` 的 GET 请求：
 
 ```xml
-<!-- 03-04 -->
+<!-- 02-04 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/he(l?)lo'/>
     <Response id='response'/>\
@@ -82,7 +82,7 @@ $ curl -X POST http://localhost:8080
 如果静态参数 url 中包含有命名参数，那么数据流经 Router 组件节点时，各命名参数相应的值将会被解析出来作为一个 JSON 对象赋值给数据流的子参数 `args`。请看下面的一个示例：
 
 ```xml
-<!-- 03-05 -->
+<!-- 02-05 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/:foo/:bar'/>
     <Response id='response'/>\
@@ -92,7 +92,7 @@ $ curl -X POST http://localhost:8080
 该示例的 Index 组件的函数项的具体内容如下：
 
 ```js
-// 03-05
+// 02-05
 function (sys, items, opts) {
     this.on("enter", (e, d) => {
         d.res.setHeader("Content-Type", "text/html");
@@ -112,7 +112,7 @@ function (sys, items, opts) {
 与命名参数值的获取类似，GET 请求数据的获取也是由数据流的子参数 `args` 参数得到的。现在让我们对上面的示例做点修改：
 
 ```xml
-<!-- 03-06 -->
+<!-- 02-06 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/:foo\\?bar=:bar'/>
     <Response id='response'/>\
@@ -132,7 +132,7 @@ function (sys, items, opts) {
 与 GET 请求不同，如果是 POST 请求，你不但可以获取到上述的两类数据，还可以得到请求报文的主体信息。该信息被解析出来后会赋值给数据流的子参数 `body`。请看下面的示例：
 
 ```xml
-<!-- 03-07 -->
+<!-- 02-07 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/' method='POST'/>
     <Response id='response'/>\
@@ -142,7 +142,7 @@ function (sys, items, opts) {
 该示例的 Response 组件的函数项的具体内容如下：
 
 ```js
-// 03-07
+// 02-07
 function (sys, items, opts) {
     this.on("enter", (e, d) => {
         d.res.setHeader("Content-Type", "text/html");

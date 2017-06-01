@@ -14,7 +14,7 @@ URL ÖØÐ´ÊÇ½«Ò»¸ö½øÈëµÄ URL ÖØÐÂÐ´³ÉÁíÒ»¸ö URL µÄ¹ý³Ì¡£
 URL µÄÖØÐ´²¢²»¸Ä±äÇëÇó¶ÔÏó req ÖÐµÄ url Ô­Ê¼Öµ£¬Ëü¸Ä±äµÄÊÇÊý¾ÝÁ÷ÖÐµÄ url ²ÎÊý¡£Çë¿´ÏÂÃæµÄÊ¾Àý£º
 
 ```xml
-<!-- 05-01 -->
+<!-- 04-01 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Rewrite from='/' to='/index.html'/>
     <Response id='response'/>
@@ -24,7 +24,7 @@ URL µÄÖØÐ´²¢²»¸Ä±äÇëÇó¶ÔÏó req ÖÐµÄ url Ô­Ê¼Öµ£¬Ëü¸Ä±äµÄÊÇÊý¾ÝÁ÷ÖÐµÄ url ²ÎÊý¡£Ç
 ´ËÊ¾ÀýµÄ Response ×é¼þÄÚÈÝÈçÏÂ£º
 
 ```js
-// 05-01
+// 04-01
 Response: {
     fun: function (sys, items, opts) {
         this.on("enter", (e, d) => {
@@ -42,7 +42,7 @@ Response: {
 URL µÄÖØÐ´¹æÔòÔÊÐíÊ¹ÓÃ [Â·ÓÉ](/router) ÖÐ½éÉÜ¹ýµÄÂ·¾¶Æ¥Åä¹æÔò£¬Çë¿´ÏÂÃæµÄÊ¾Àý£º
 
 ```xml
-<!-- 05-02 -->
+<!-- 04-02 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Rewrite from='/:id' to='/:id.html'/>
     <Response id='response'/>
@@ -58,7 +58,7 @@ URL µÄÖØÐ´¹æÔòÔÊÐíÊ¹ÓÃ [Â·ÓÉ](/router) ÖÐ½éÉÜ¹ýµÄÂ·¾¶Æ¥Åä¹æÔò£¬Çë¿´ÏÂÃæµÄÊ¾Àý£º
 ÉÏÃæ¸ø³öµÄ Rewrite ×é¼þ½ÚµãÖ»Ìá¹©Ò»¸ö URL µÄÖØÐ´¹æÔò¡£Èç¹ûÐèÒªÌá¹©¶à¸ö URL ÖØÐ´¹æÔò£¬Äã¿ÉÒÔÏñÏÂÃæÕâÑù¶¨ÒåÒ»×éÖØÐ´¹æÔò£º
 
 ```xml
-// 05-03
+// 04-03
 Rewrite: {
     xml: "<i:Rewrite xmlns:i='//xmlweb/rewrite'>\
              <i:Roule from='/' to='/index'/>\
@@ -70,7 +70,7 @@ Rewrite: {
 ×é¼þ Roule ¿ÉÒÔ×÷Îª Rewrite µÄ×Ó×é¼þÊ¹ÓÃÀ´¶¨ÒåÒ»ÌõÖØÐ´¹æÔò¡£ÏÂÃæÊÇÊ¹ÓÃ¸ÃÐÂ¶¨ÒåµÄ Rewrite ×é¼þµÄÊ¾Àý£º
 
 ```xml
-<!-- 05-03 -->
+<!-- 04-03 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <Rewrite id='rewrite'/>
     <Response id='response'/>
