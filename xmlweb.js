@@ -75,8 +75,8 @@ $_().imports({
                 <i:ParseURL id='url'/>\
                 <i:ParseBody id='body'/>\
               </main>",
-        opt: { url: "/", method: "GET", usebody: true, usecookie: false },
-        map: { attrs: {"url": "url"}, format: {"bool": "usebody usecookie"} },
+        opt: { url: "/", method: "GET", usebody: true },
+        map: { attrs: {"url": "url"}, format: {"bool": "usebody"} },
         fun: function (sys, items, opts) {
             this.on("enter", async (e, d) => {
                 if ( d.req.method != opts.method )
