@@ -1,6 +1,6 @@
 {
   "name": "xmlweb",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "dependencies": {
     "path-to-regexp": "^1.2.1",
     "uid-safe": "^2.1.4",

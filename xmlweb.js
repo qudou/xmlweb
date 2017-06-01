@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.0.6
+ * xmlweb.js v1.0.7
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -59,8 +59,8 @@ $_().imports({
     },
     Static: {
         cfg: { router: {method: "GET", usebody: false} },
-        xml: "<Flow xmlns:r='router' xmlns:s='static'>\
-                <r:Router id='router'/>\
+        xml: "<Flow xmlns:s='static'>\
+                <Router id='router'/>\
                 <s:Status id='status'/>\
                 <s:Cache id='catch'/>\
                 <s:Compress id='compress'/>\
