@@ -4,7 +4,7 @@
 
 ## 静态接口
 
-为了了解清楚该组件是如何使用的，我们从该组件应用的一个最简单的示例开始：
+为了了解清楚该组件是如何使用的，我们从一个最简单的示例开始：
 
 ```xml
 <!-- 03-01 -->
@@ -15,7 +15,7 @@
 
 该静态 web 服务器侦听 8080 端口，并以代码所在的文件目录为工作目录。当然，你最好给它设置一个独立的工作目录。该示例尽管简单，但它可以正常工作，下面是一些可以提供的静态接口属性：
 
-- `url`: `String` 允许接受的请求路径，默认为 '/*'
+- `url`: `String` 描述了允许接受的请求路径集，默认为 `/*`
 - `root`：`String` 工作目录，默认为代码所在的文件目录
 - `mime`：`PlainObject` 额外的 MIME 类型
 
@@ -51,13 +51,15 @@ Index: {
 - xml: text/xml
 - zip: application/zip
 
+如果组件内部并不包含请求某种 MIME 类型，那么组件节点会返回一个值 `unknow` 的 `Content-Type` 响应头。
+
 ## 内部结构
 
 为了更好的使用该组件，对 Static 组件的内部做些了解是很有必要的。组件 Static 实质上是一个状态机组件，下面是此组件的视图项：
 
 ```xml
-<Flow xmlns:r='router' xmlns:s='static'>
-    <r:Router id='router'/>
+<Flow xmlns:s='static'>
+    <Router id='router'/>
     <s:Status id='status'/>
     <s:Cache id='catch'/>
     <s:Compress id='compress'/>
@@ -103,4 +105,4 @@ NotFound: {
 }
 ```
 
-当然，这个自定义组件返回的 404 页面还是非常简单的，你可以进一步修改成你想要的样子。
+当然，这个自定义组件返回的 404 页面还是非常简陋的，你可以进一步修改成你想要的样子。
