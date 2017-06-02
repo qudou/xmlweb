@@ -4,8 +4,16 @@ xmlweb("xp", function (xp, $_, t) {
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
                     <i:Router url='/index.html'/>\
-                    <i:Static id='static'/>\
+                    <Response id='response'/>\
                   </i:HTTP>"
+        },
+        Response: {
+            fun: function (sys, items, opts) {
+                this.on("enter", (e, d) => {
+                    d.res.setHeader("Content-Type", "application/json;");
+                    d.res.end("hello, world");
+                });
+            }
         }
     });
 }).startup("//xp/Index");
