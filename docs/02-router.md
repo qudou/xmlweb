@@ -125,7 +125,7 @@ function (sys, items, opts) {
 { "foo": "alice", "bar": "bob" }
 ```
 
-另外要注意，示例中的模式串对问号必需加双斜杆，否则该问号将对前面的 `foo` 起作用。
+另外要注意，示例中的模式串中的问号必需加双斜杆，否则该问号将对前面的 `foo` 起作用。
 
 ## POST 请求数据的获取
 
@@ -156,5 +156,7 @@ function (sys, items, opts) {
 ```bash
 $ curl -H "Content-type: application/json" -X POST -d '{"key":"2017"}' http://localhost:8080
 ```
+
+仔细观察，该命令添加了一个请求头 `Content-type: application/json`，这样后台会试图将目标数据解析为 JSON 组件对象。
 
 有时你需要自己处理请求报文的主体信息，那么你可以设置 Router 组件的静态参数 `usebody` 为 `false` 来禁止对主体信息的解析。
