@@ -15,7 +15,7 @@ xmlweb("xp", function (xp, $_, t) {
         },
         Next: {
             fun: function (sys, items, opts) {
-                this.on("enter", (e, d) => this.trigger("reject", d));
+                this.on("enter", (e, d) => this.trigger("next", d));
             }
         },
         Hello: {
