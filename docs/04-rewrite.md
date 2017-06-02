@@ -11,7 +11,7 @@ URL 重写是将一个进入的 URL 重新写成另一个 URL 的过程。
 - ptr：状态机内部使用的指针数组
 - url：与 req.url 一致
 
-URL 的重写并不改变请求对象 req 中的 url 原始值，它改变的是数据流中的 url 参数。请看下面的示例：
+URL 的重写并不改变请求对象 req 中的 url 原始值，它改变的是数据流中的 `url` 参数。请看下面的示例：
 
 ```xml
 <!-- 04-01 -->
@@ -35,7 +35,7 @@ Response: {
 }
 ```
 
-在浏览器中输入 `http://localhost:8080`，那么你将看到原始 URL 以及经过 Response 组件节点重写后的 URL。
+在浏览器中输入 `http://localhost:8080`，那么你将看到原始的 `url` 以及经过 Response 组件节点重写后的 `url`。
 
 ## 重写规则
 
@@ -51,7 +51,7 @@ URL 的重写规则允许使用 [路由](/router) 中介绍过的路径匹配规则，请看下面的示例：
 
 此示例的 Response 组件与上一个示例相同。此示例会将任何的具有模式 `/:id` 的 URL 重写为具有模式 `/:id.html` 的 URL 输出，其中的 `id` 值保持一致。
 
-有一点需要提醒，Router 组件中对路径的匹配使用的是原始 URL，而不使用数据流中 url 参数，所以不要试图使用 Router 组件节点过滤使用 Rewrite 组件节点重写后的 url 值。
+有一点需要提醒，Router 组件中对路径的匹配使用的是原始的 `url`，而不使用数据流中 `url` 参数，所以不要试图使用 Router 组件节点过滤使用 Rewrite 组件节点重写后的 `url` 值。
 
 ## 指定多个重写项
 
@@ -67,7 +67,7 @@ Rewrite: {
 }
 ```
 
-组件 Roule 可以作为 Rewrite 的子组件使用来定义一条重写规则。下面是使用该新定义的 Rewrite 组件的示例：
+组件 Roule 可以作为 Rewrite 的子组件使用来定义一条重写规则。下面是使用新定义的 Rewrite 组件的示例：
 
 ```xml
 <!-- 04-03 -->
@@ -77,4 +77,4 @@ Rewrite: {
 </i:HTTP>
 ```
 
-此示例的组件 Response 与前面给出的一致。你可以输入地址 `http://localhost:8080` 与地址 `http://localhost:8080` 分别测试两种不同的情况。
+此示例的组件 Response 与前面给出的一致。你可以在浏览器中输入地址 `http://localhost:8080` 与地址 `http://localhost:8080/index` 分别测试两种不同的情况。

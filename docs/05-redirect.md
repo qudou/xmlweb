@@ -22,7 +22,9 @@ Redirect 组件的默认的采用的状态码是 `302`，如下面的示例所示：
 
 你可以通过静态参数 `statusCode` 重新指定重定向的类型，如下面的示例指定了一个永久的重定向：
 
+```xml
 <!-- 05-02 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Redirect statusCode='301' to='http://xmlplus.cn'/>
 </i:HTTP>
+```
