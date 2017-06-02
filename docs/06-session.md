@@ -94,8 +94,7 @@ Storage: {
     xml: "<Sqlite id='sqlite'/>",
     fun: function(sys, items, opts) {
         function load() {
-            var stmt = "SELECT * FROM sessions";
-            items.sqlite.all(stmt, (err, rows) => {
+            items.sqlite.all("SELECT * FROM sessions", (err, rows) => {
                 if ( err ) { throw err; }
                 let result = [];
                 rows.forEach(item => result.push(JSON.parse(item.data)));
@@ -103,14 +102,11 @@ Storage: {
             });
         }
         function save(ssid, session) {
-            let insert = "INSERT INTO sessions(ssid, data) VALUES(?,?)",
-                stmt = items.sqlite.prepare(insert);
-                stmt.run(JSON.stringify(session), err => {if (err) throw err});
-            });
+            let stmt = items.sqlite.prepare("INSERT INTO sessions(ssid, data) VALUES(?,?)");
+            stmt.run(JSON.stringify(session), err => {if (err) throw err});
         }
         function remove(ssid) {
-            let remove = "DELETE FROM sessions WHERE ssid=?";
-            let stmt = items.sqlite.prepare(remove);
+            let stmt = items.sqlite.prepare("DELETE FROM sessions WHERE ssid=?");
             stmt.run(ssid, err => {if ( err ) throw err});
         }
         return { load: load, save: save, remove: remove };
