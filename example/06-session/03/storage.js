@@ -5,11 +5,10 @@ xmlweb("xmlweb", function (xp, $_, t) {
         Storage: {
             xml: "<main id='storage'/>",
             fun: function(sys, items, opts) {
-                var sqlite = require("sqlite3").verbose(),
-                return new sqlite.Database("data.db");
+                let sqlite = require("sqlite3").verbose(),
+                    db = new sqlite.Database("data.db");
                 function load() {
-                    var stmt = "SELECT * FROM sessions";
-                    sqlite.all(stmt, (err, rows) => {
+                    db.all("SELECT * FROM sessions", (err, rows) => {
                         if ( err ) { throw err; }
                         let result = [];
                         rows.forEach(item => result.push(JSON.parse(item.data)));
@@ -17,13 +16,11 @@ xmlweb("xmlweb", function (xp, $_, t) {
                     });
                 }
                 function save(ssid, session) {
-                    let insert = "INSERT INTO sessions(ssid, data) VALUES(?,?)",
-                        stmt = sqlite.prepare(insert);
+                    let stmt = db.prepare("INSERT INTO sessions(ssid, data) VALUES(?,?)");
                     stmt.run(JSON.stringify(session), err => {if (err) throw err});
                 }
                 function remove(ssid) {
-                    let remove = "DELETE FROM sessions WHERE ssid=?",
-                        stmt = sqlite.prepare(remove);
+                    let stmt = db.prepare("DELETE FROM sessions WHERE ssid=?");
                     stmt.run(ssid, err => {if (err) throw err});
                 }
                 return { load: load, save: save, remove: remove };

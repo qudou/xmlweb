@@ -13,7 +13,7 @@ xmlweb("xp", function (xp, $_, t) {
                     d.session.count = d.session.count || 0;
                     d.session.count++;
                     if ( d.session.count == 5 )
-                        this.notify("destroy-session", d.session.ssid);
+                        this.notify("destroy-session", d.session);
                     d.res.setHeader("Content-Type", "text/html");
                     d.res.end(`you viewed this site ${d.session.count} times`);
                 });

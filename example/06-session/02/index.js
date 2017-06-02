@@ -12,7 +12,7 @@ xmlweb("xp", function (xp, $_, t) {
                 this.on("enter", (e, d) => {
                     d.session.count = d.session.count || 0;
                     d.session.count++;
-                    this.notify("save-session", d.session.ssid);
+                    this.notify("save-session", d.session);
                     d.res.setHeader("Content-Type", "text/html");
                     d.res.end(`you viewed this site ${d.session.count} times`);
                 });
