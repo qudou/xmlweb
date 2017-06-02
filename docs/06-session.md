@@ -38,7 +38,7 @@ Response: {
 }
 ```
 
-此示例记录了用户访问站点的次数，每访问一次 `session` 中 `count` 属性值便增加 `1`。数据流中的 session 对象在创建之初包含了两个内容：`ssid` 和 `createtime`，前进者是维系会话的标识符，后都是 session 对象的创建时间。
+此示例记录了用户访问站点的次数，每访问一次 `session` 中 `count` 属性值便增加 `1`。数据流中的 `session` 对象在创建之初包含了两个内容：`ssid` 和 `createtime`，前进者是维系会话的标识符，后者是 session 对象的创建时间。
 
 ## Session 的存储
 
@@ -51,7 +51,7 @@ Response: {
         this.on("enter", (e, d) => {
             d.session.count = d.session.count || 0;
             d.session.count++;
-            this.notify("save-session", d.session.ssid);
+            this.notify("save-session", d.session);
             d.res.setHeader("Content-Type", "text/html");
             d.res.end("you viewed this site ${d.session.count} times");
         });
@@ -61,32 +61,32 @@ Response: {
 
 该组件修改自上一节的 Response 组件，每当计数器发生更改的时候，则发送一次 `save-session` 消息以保存更改后的数据。
 
-xmlweb 内置了一个 session 的存储驱动组件 Storage，它位于命名空间 `//xmlweb/session` 中，它包含了如下的接口：
+xmlweb 内置了一个 session 的存储驱动组件 Storage，它位于命名空间 `//xmlweb/session` 中，它包含了如下的三个接口：
 
 ```js
 load()
 ```
 
-用于加载存储的所有的 session 对象，加载完毕需要派发一个 `session-loaded` 事件，携带参数为一个 session 数组
+用于加载存储的所有的 session 对象，加载完毕需要派发一个 `session-loaded` 事件，携带参数为一个 `session` 数组。
 
 ```js
 save(ssid, session)
 ```
 
-- `ssid`: `String` session 标识符
-- `session` `PlainObject` 一个 session 对象
+- `ssid`: `String` `session` 标识符
+- `session` `PlainObject` 一个 `session` 对象
 
-用于保存或者覆盖一个 session 对象，如果已存在则覆盖，否则新存储一个
+用于保存或者覆盖一个 `session` 对象，如果已存在则覆盖，否则新存储一个。
 
 ```js
 remove(ssid)
 ```
 
-- `ssid`: `String` session 标识符
+- `ssid`: `String` `session` 标识符
 
-用于移除一个 session 对象。
+用于移除一个 `session` 对象。
 
-组件 Strong 将数据以文本形式存放。你可以使用一个实现了上述接口的组件来覆盖默认的内置组件 Storage，如下面的示例所示：
+组件 Storage 将数据以文本形式存放。你可以使用一个实现了上述接口的同名组件来覆盖默认的内置组件，如下面的示例所示：
 
 ```js
 // 06-03
@@ -105,28 +105,24 @@ Storage: {
         function save(ssid, session) {
             let insert = "INSERT INTO sessions(ssid, data) VALUES(?,?)",
                 stmt = items.sqlite.prepare(insert);
-                stmt.run(JSON.stringify(session), err => {
-                    if ( err ) throw err;
-                });
+                stmt.run(JSON.stringify(session), err => {if (err) throw err});
             });
         }
         function remove(ssid) {
             let remove = "DELETE FROM sessions WHERE ssid=?";
             let stmt = items.sqlite.prepare(remove);
-            stmt.run(ssid, err => {
-                if ( err ) throw err;
-            });
+            stmt.run(ssid, err => {if ( err ) throw err});
         }
         return { load: load, save: save, remove: remove };
     }
 }
 ```
 
-该 Storage 组件简单地实现了将 session 数据保存在 sqlite 数据库中。此数据库仅包含两个列：`ssid` 和 `data`，其中列 `data` 用于存放 session 对象集。
+该 Storage 组件简单地实现了将 session 数据保存在 sqlite 数据库中。此数据库仅包含两个列：`ssid` 和 `data`，其中列 `data` 用于存放 `session` 对象集。
 
 ## Session 的移除
 
-有时候我们需要移除已存在的 session，比如用户的登出操作。要移除 session，只要发送一个 `destroy-session` 的消息即可，请看下面的示例：
+有时候我们需要移除已存在的 `session`，比如用户的登出操作。要移除 `sessio`n，只要发送一个 `destroy-session` 的消息即可，请看下面的示例：
 
 ```js
 // 06-04
@@ -136,7 +132,7 @@ Response: {
             d.session.count = d.session.count || 0;
             d.session.count++;
             if ( d.session.count > 5 )
-                this.notify("destroy-session", d.session.ssid);
+                this.notify("destroy-session", d.session);
             d.res.setHeader("Content-Type", "text/html");
             d.res.end("you viewed this site ${d.session.count} times");
         });

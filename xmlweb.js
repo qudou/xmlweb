@@ -125,8 +125,8 @@ $_().imports({
                 }
                 this.trigger("next", d);
             });
-            this.watch("save-session", (e, ssid) => items.manager.save(ssid));
-            this.watch("destroy-session", (e, ssid) => items.manager.destroy(ssid));
+            this.watch("save-session", (e, session) => items.manager.save(session.ssid));
+            this.watch("destroy-session", (e, session) => items.manager.destroy(session.ssid));
         }
     }
 });
