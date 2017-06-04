@@ -105,7 +105,7 @@ $_().imports({
             this.on("enter", (e, d) => {
                 d.res.statusCode = statusCode;
                 d.res.setHeader("Location", opts["to"]);
-                d.res.end(table[statusCode]);
+                d.res.end();
             });
         }
     },
@@ -321,7 +321,7 @@ $_("static").imports({
             let fs = require("fs"), url = require("url"), path = require("path");
             this.on("enter", async (e, d) => {
                 d.path = path.join(opts.root, url.parse(d.url).pathname);
-                d.ext = (path.extname(d.path) || ".txt").slice(1);
+                d.ext = (path.extname(d.path) || ".bin").slice(1);
                 let s = await status(d.path);
                 if ( s.err == null ) {
                     s.stat.isFile() ? this.trigger("next", (d.stat = s.stat, d)) : this.trigger("reject", d);
@@ -337,21 +337,21 @@ $_("static").imports({
         }
     },
     Cache: {
-        opt: { file: /^(gif|png|jpg|js|css)$/ig, maxAge: 24 * 3600 * 365 },
+        opt: { maxAge: 24 * 3600 * 365 },
         fun: function (sys, items, opts) {
+            let types = new Set("gif png jpg js css htm html".split(' '));
             this.on("enter", (e, d) => {
-                if ( d.ext.match(opts.file) ) {
-                    let expires = new Date;
-                    expires.setTime(Date.now() + opts.maxAge * 1000);
-                    d.res.setHeader("Expires", expires.toUTCString());
-                    d.res.setHeader("Cache-Control", "max-age=" + opts.maxAge);
-                }
                 let lastModified = d.stat.mtime.toUTCString();
                 d.res.setHeader("Last-Modified", lastModified);
                 if ( d.req.headers["if-modified-since"] && lastModified == d.req.headers["if-modified-since"] ) {
                     d.res.statusCode = 304;
                     d.res.setHeader("Content-Type", "text/html");
                     return d.res.end();
+                }
+                if ( types.has(d.ext) ) {
+                    let expires = new Date;
+                    expires.setTime(Date.now() + opts.maxAge * 1000);
+                    d.res.setHeader("Expires", expires.toUTCString());
                 }
                 this.trigger("next", d);
             });
@@ -379,11 +379,9 @@ $_("static").imports({
     }, 
     Output: {
         fun: function (sys, items, opts) {
-            let mime = { css: "text/css", gif: "image/gif", htm: "text/html", html: "text/html", ico: "image/x-icon", jpeg: "image/jpeg", jpg: "image/jpeg", js: "text/javascript", json: "application/json", pdf: "application/pdf", png: "image/png", svg: "image/svg+xml", tiff: "image/tiff", txt: "text/plain", wav: "audio/x-wav", xml: "text/xml", zip: "application/zip" };
-            for ( let k in opts.mime )
-                mime[k] || (mime[k] = opts.mime[k]);
+            let mime = require("mime");
             this.on("enter", (e, d) => {
-                d.res.setHeader("Content-Type", mime[d.ext] || "unknow"); 
+                d.res.setHeader("Content-Type", mime.lookup(d.ext)); 
                 d.compress ? d.raw.pipe(d.compress).pipe(d.res) : d.raw.pipe(d.res);
             });
         }
