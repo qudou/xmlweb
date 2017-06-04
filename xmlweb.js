@@ -62,6 +62,7 @@ $_().imports({
         xml: "<Flow xmlns:s='static'>\
                 <Router id='router'/>\
                 <s:Status id='status'/>\
+                <s:Ranges id='ranges'/>\
                 <s:Cache id='catch'/>\
                 <s:Compress id='compress'/>\
                 <s:Output id='output'/>\
@@ -336,6 +337,47 @@ $_("static").imports({
             }
         }
     },
+    Ranges: {
+        fun: function (sys, items, opts) {
+            let fs = require("fs"),
+                regexp = /^ *bytes=/,
+                parseRange = require('range-parser');
+            this.on("enter", (e, d) => {
+                let len = d.stat.size, ranges = d.req.headers.range;
+                d.res.setHeader("Accept-Ranges", "bytes");
+                if ( !regexp.test(ranges) || !isRangeFresh(d) )
+                    return this.trigger("next", d);
+                ranges = parseRange(len, ranges, {combine: true});
+                if ( ranges === -1 ) {
+                    d.res.setHeader('Content-Range', `bytes */${len}}`);
+                    d.res.statusCode = 416;
+                    return d.res.end();
+                }
+                if ( ranges.length === 1 ) {
+                    d.res.statusCode = 206;
+                    d.res.setHeader('Content-Range', `bytes ${ranges[0].start + '-' + ranges[0].end + '/' + len}`);
+                    d.res.setHeader('Content-Length', ranges[0].end - ranges[0].start + 1);
+                    d.raw = fs.createReadStream(d.path, {start: ranges[0].start, end: ranges[0].end});
+                    return this.trigger("next", [d, "output"]);
+                }
+                this.trigger("next", d);
+            });
+            function isRangeFresh (d) {
+                let ifRange = d.req.headers['if-range'];
+                if (!ifRange) return true;
+                if (ifRange.indexOf('"') !== -1) {
+                    let etag = d.res.getHeader('ETag');
+                    return Boolean(etag && ifRange.indexOf(etag) !== -1);
+                }
+                let lastModified = d.res.getHeader('Last-Modified');
+                return parseHttpDate(lastModified) <= parseHttpDate(ifRange);
+            }
+            function parseHttpDate (date) {
+                let timestamp = date && Date.parse(date);
+                return typeof timestamp === 'number' ? timestamp : NaN;
+            }
+        }
+    },
     Cache: {
         opt: { maxAge: 24 * 3600 * 365 },
         fun: function (sys, items, opts) {
@@ -362,16 +404,20 @@ $_("static").imports({
             let types = new Set(['css','js','htm','html']),
                 fs = require("fs"), zlib = require("zlib");
             this.on("enter", (e, d) => {
-                let encoding = d.req.headers['accept-encoding'] || "";
                 d.raw = fs.createReadStream(d.path);
-                if ( !types.has(d.ext) )
+                if ( !types.has(d.ext) ) {
+                    d.res.setHeader("Content-Length", d.stat.size);
                     return this.trigger("next", d);
+                }
+                let encoding = d.req.headers['accept-encoding'] || "";
                 if ( encoding.indexOf("gzip") != -1 ) {
                     d.compress = zlib.createGzip();
                     d.res.setHeader("Content-Encoding", "gzip");
                 } else if ( encoding.indexOf("deflate") != -1 ) {
                     d.compress = zlib.createDeflate();
                     d.res.setHeader("Content-Encoding", "deflate");
+                } else {
+                    d.res.setHeader("Content-Length", d.stat.size);
                 }
                 this.trigger("next", d);
             });
