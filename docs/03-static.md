@@ -17,41 +17,6 @@
 
 - `url`: `String` 描述了允许接受的请求路径集，默认为 `/*`
 - `root`：`String` 工作目录，默认为代码所在的文件目录
-- `mime`：`PlainObject` 额外的 MIME 类型
-
-上述的 mime 属性需要结合示例说明下：
-
-```js
-// 03-02
-Index: {
-    xml: "<i:HTTP xmlns:i='//xmlweb'>\
-            <i:Static id='static'/>\
-          </i:HTTP>",
-    cfg: { "static": {mime: {mp3: "audio/mpeg"}} }
-}
-```
-
-此示例通过组件的配置项添加了一个 xmlweb 中不存在的 MIME 类型。xmlweb 默认支持的 MIME 类型如下：
-
-- css: text/css
-- gif: image/gif
-- htm: text/html
-- html: text/html
-- ico: image/x-icon
-- jpeg: image/jpeg
-- jpg: image/jpeg
-- js: text/javascript
-- json: "application/json
-- pdf: application/pdf
-- png: image/png
-- svg: image/svg+xml
-- tiff: image/tiff
-- txt: text/plain
-- wav: audio/x-wav
-- xml: text/xml
-- zip: application/zip
-
-如果组件内部并不包含请求某种 MIME 类型，那么组件节点会返回一个值 `unknow` 的 `Content-Type` 响应头。
 
 ## 内部结构
 
@@ -82,7 +47,7 @@ Index: {
 Static 组件节点对不存在的 URL 请求会导致停机，从而将后续处理交给 HTTP 组件节点，而 HTTP 组件节点的处理方式是返回一个简单的 404 页面。我们如果想返回不一样的 404 页面，那么可以自己定义一个组件节点并将其作为 Static 组件节点的后继。如下面的示例所示：
 
 ```xml
-<!-- 03-03 -->
+<!-- 03-02 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Static id='static'/>
     <NotFound id='notfound'/>

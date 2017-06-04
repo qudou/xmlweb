@@ -68,7 +68,7 @@ $_().imports({
                 <s:Err500 id='err500'/>\
               </Flow>",
         opt: { root: ".", url: "/*" }, 
-        map: { attrs: { status: "root", router: "url" }, cfgs: { output: "mime" } }
+        map: { attrs: { status: "root", router: "url" } }
     },
     Router: {
         xml: "<main id='router' xmlns:i='/router'>\
@@ -359,17 +359,17 @@ $_("static").imports({
     },
     Compress: {
         fun: function (sys, items, opts) {
-            let types = new Set(['css','js','html']),
+            let types = new Set(['css','js','htm','html']),
                 fs = require("fs"), zlib = require("zlib");
             this.on("enter", (e, d) => {
                 let encoding = d.req.headers['accept-encoding'] || "";
                 d.raw = fs.createReadStream(d.path);
                 if ( !types.has(d.ext) )
                     return this.trigger("next", d);
-                if ( encoding.match(/\bgzip\b/) ) {
+                if ( encoding.indexOf("gzip") != -1 ) {
                     d.compress = zlib.createGzip();
                     d.res.setHeader("Content-Encoding", "gzip");
-                } else if ( encoding.match(/\bdeflate\b/) ) {
+                } else if ( encoding.indexOf("deflate") != -1 ) {
                     d.compress = zlib.createDeflate();
                     d.res.setHeader("Content-Encoding", "deflate");
                 }
