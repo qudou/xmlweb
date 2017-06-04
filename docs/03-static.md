@@ -26,6 +26,7 @@
 <Flow xmlns:s='static'>
     <Router id='router'/>
     <s:Status id='status'/>
+    <s:Ranges id='ranges'/>
     <s:Cache id='catch'/>
     <s:Compress id='compress'/>
     <s:Output id='output'/>
@@ -37,6 +38,7 @@
 
 - Router：过滤掉所有的非 GET 请求
 - Status：获取目录文件的状态属性，如果文件不允许访问，会导致状态机停机
+- Ranges: 部分资源的范围请求的处理
 - Catch：文件缓存处理
 - Compress：文件压缩处理
 - Output：响应请求
