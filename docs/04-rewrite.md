@@ -1,17 +1,17 @@
-# URL ÖØÐ´
+# ç½‘å€é‡å†™
 
-URL ÖØÐ´ÊÇ½«Ò»¸ö½øÈëµÄ URL ÖØÐÂÐ´³ÉÁíÒ»¸ö URL µÄ¹ý³Ì¡£
+URL é‡å†™æ˜¯å°†ä¸€ä¸ªè¿›å…¥çš„ URL é‡æ–°å†™æˆå¦ä¸€ä¸ª URL çš„è¿‡ç¨‹ã€‚
 
-## ²»¸Ä±äÔ­Ê¼ÖµµÄÖØÐ´
+## ä¸æ”¹å˜åŽŸå§‹å€¼çš„é‡å†™
 
-ÔÚ [×´Ì¬»ú](/state-machine) ÖÐËµ¹ý¡£Êý¾ÝÁ÷ÓÉ HTTP ×é¼þ¶ÔÏóÔÚ½ÓÊÕµ½ÓÃ»§µÄÇëÇóÊ±Éú³É¡£ÔÚ³õÊ¼×´Ì¬£¬ËüÖ÷Òª°üº¬ÁËÈçÏÂµÄÄÚÈÝ£º
+åœ¨ [çŠ¶æ€æœº](/state-machine) ä¸­è¯´è¿‡ã€‚æ•°æ®æµç”± HTTP ç»„ä»¶å¯¹è±¡åœ¨æŽ¥æ”¶åˆ°ç”¨æˆ·çš„è¯·æ±‚æ—¶ç”Ÿæˆã€‚åœ¨åˆå§‹çŠ¶æ€ï¼Œå®ƒä¸»è¦åŒ…å«äº†å¦‚ä¸‹çš„å†…å®¹ï¼š
 
-- req£ºÇëÇó¶ÔÏó(request)
-- res£ºÏìÓ¦¶ÔÏó(response)
-- ptr£º×´Ì¬»úÄÚ²¿Ê¹ÓÃµÄÖ¸ÕëÊý×é
-- url£ºÓë req.url Ò»ÖÂ
+- reqï¼šè¯·æ±‚å¯¹è±¡(request)
+- resï¼šå“åº”å¯¹è±¡(response)
+- ptrï¼šçŠ¶æ€æœºå†…éƒ¨ä½¿ç”¨çš„æŒ‡é’ˆæ•°ç»„
+- urlï¼šä¸Ž req.url ä¸€è‡´
 
-URL µÄÖØÐ´²¢²»¸Ä±äÇëÇó¶ÔÏó req ÖÐµÄ url Ô­Ê¼Öµ£¬Ëü¸Ä±äµÄÊÇÊý¾ÝÁ÷ÖÐµÄ `url` ²ÎÊý¡£Çë¿´ÏÂÃæµÄÊ¾Àý£º
+URL çš„é‡å†™å¹¶ä¸æ”¹å˜è¯·æ±‚å¯¹è±¡ req ä¸­çš„ url åŽŸå§‹å€¼ï¼Œå®ƒæ”¹å˜çš„æ˜¯æ•°æ®æµä¸­çš„ `url` å‚æ•°ã€‚è¯·çœ‹ä¸‹é¢çš„ç¤ºä¾‹ï¼š
 
 ```xml
 <!-- 04-01 -->
@@ -21,7 +21,7 @@ URL µÄÖØÐ´²¢²»¸Ä±äÇëÇó¶ÔÏó req ÖÐµÄ url Ô­Ê¼Öµ£¬Ëü¸Ä±äµÄÊÇÊý¾ÝÁ÷ÖÐµÄ `url` ²ÎÊý¡
 </i:HTTP>
 ```
 
-´ËÊ¾ÀýµÄ Response ×é¼þÄÚÈÝÈçÏÂ£º
+æ­¤ç¤ºä¾‹çš„ Response ç»„ä»¶å†…å®¹å¦‚ä¸‹ï¼š
 
 ```js
 // 04-01
@@ -35,11 +35,11 @@ Response: {
 }
 ```
 
-ÔÚä¯ÀÀÆ÷ÖÐÊäÈë `http://localhost:8080`£¬ÄÇÃ´Äã½«¿´µ½Ô­Ê¼µÄ `url` ÒÔ¼°¾­¹ý Response ×é¼þ½ÚµãÖØÐ´ºóµÄ `url`¡£
+åœ¨æµè§ˆå™¨ä¸­è¾“å…¥ `http://localhost:8080`ï¼Œé‚£ä¹ˆä½ å°†çœ‹åˆ°åŽŸå§‹çš„ `url` ä»¥åŠç»è¿‡ Response ç»„ä»¶èŠ‚ç‚¹é‡å†™åŽçš„ `url`ã€‚
 
-## ÖØÐ´¹æÔò
+## é‡å†™è§„åˆ™
 
-URL µÄÖØÐ´¹æÔòÔÊÐíÊ¹ÓÃ [Â·ÓÉ](/router) ÖÐ½éÉÜ¹ýµÄÂ·¾¶Æ¥Åä¹æÔò£¬Çë¿´ÏÂÃæµÄÊ¾Àý£º
+URL çš„é‡å†™è§„åˆ™å…è®¸ä½¿ç”¨ [è·¯ç”±](/router) ä¸­ä»‹ç»è¿‡çš„è·¯å¾„åŒ¹é…è§„åˆ™ï¼Œè¯·çœ‹ä¸‹é¢çš„ç¤ºä¾‹ï¼š
 
 ```xml
 <!-- 04-02 -->
@@ -49,13 +49,13 @@ URL µÄÖØÐ´¹æÔòÔÊÐíÊ¹ÓÃ [Â·ÓÉ](/router) ÖÐ½éÉÜ¹ýµÄÂ·¾¶Æ¥Åä¹æÔò£¬Çë¿´ÏÂÃæµÄÊ¾Àý£º
 </i:HTTP>
 ```
 
-´ËÊ¾ÀýµÄ Response ×é¼þÓëÉÏÒ»¸öÊ¾ÀýÏàÍ¬¡£´ËÊ¾Àý»á½«ÈÎºÎµÄ¾ßÓÐÄ£Ê½ `/:id` µÄ URL ÖØÐ´Îª¾ßÓÐÄ£Ê½ `/:id.html` µÄ URL Êä³ö£¬ÆäÖÐµÄ `id` Öµ±£³ÖÒ»ÖÂ¡£
+æ­¤ç¤ºä¾‹çš„ Response ç»„ä»¶ä¸Žä¸Šä¸€ä¸ªç¤ºä¾‹ç›¸åŒã€‚æ­¤ç¤ºä¾‹ä¼šå°†ä»»ä½•çš„å…·æœ‰æ¨¡å¼ `/:id` çš„ URL é‡å†™ä¸ºå…·æœ‰æ¨¡å¼ `/:id.html` çš„ URL è¾“å‡ºï¼Œå…¶ä¸­çš„ `id` å€¼ä¿æŒä¸€è‡´ã€‚
 
-ÓÐÒ»µãÐèÒªÌáÐÑ£¬Router ×é¼þÖÐ¶ÔÂ·¾¶µÄÆ¥ÅäÊ¹ÓÃµÄÊÇÔ­Ê¼µÄ `url`£¬¶ø²»Ê¹ÓÃÊý¾ÝÁ÷ÖÐ `url` ²ÎÊý£¬ËùÒÔ²»ÒªÊÔÍ¼Ê¹ÓÃ Router ×é¼þ½Úµã¹ýÂËÊ¹ÓÃ Rewrite ×é¼þ½ÚµãÖØÐ´ºóµÄ `url` Öµ¡£
+æœ‰ä¸€ç‚¹éœ€è¦æé†’ï¼ŒRouter ç»„ä»¶ä¸­å¯¹è·¯å¾„çš„åŒ¹é…ä½¿ç”¨çš„æ˜¯åŽŸå§‹çš„ `url`ï¼Œè€Œä¸ä½¿ç”¨æ•°æ®æµä¸­ `url` å‚æ•°ï¼Œæ‰€ä»¥ä¸è¦è¯•å›¾ä½¿ç”¨ Router ç»„ä»¶èŠ‚ç‚¹è¿‡æ»¤ä½¿ç”¨ Rewrite ç»„ä»¶èŠ‚ç‚¹é‡å†™åŽçš„ `url` å€¼ã€‚
 
-## Ö¸¶¨¶à¸öÖØÐ´Ïî
+## æŒ‡å®šå¤šä¸ªé‡å†™é¡¹
 
-ÉÏÃæ¸ø³öµÄ Rewrite ×é¼þ½ÚµãÖ»Ìá¹©Ò»¸ö URL µÄÖØÐ´¹æÔò¡£Èç¹ûÐèÒªÌá¹©¶à¸ö URL ÖØÐ´¹æÔò£¬Äã¿ÉÒÔÏñÏÂÃæÕâÑù¶¨ÒåÒ»×éÖØÐ´¹æÔò£º
+ä¸Šé¢ç»™å‡ºçš„ Rewrite ç»„ä»¶èŠ‚ç‚¹åªæä¾›ä¸€ä¸ª URL çš„é‡å†™è§„åˆ™ã€‚å¦‚æžœéœ€è¦æä¾›å¤šä¸ª URL é‡å†™è§„åˆ™ï¼Œä½ å¯ä»¥åƒä¸‹é¢è¿™æ ·å®šä¹‰ä¸€ç»„é‡å†™è§„åˆ™ï¼š
 
 ```xml
 // 04-03
@@ -67,7 +67,7 @@ Rewrite: {
 }
 ```
 
-×é¼þ Roule ¿ÉÒÔ×÷Îª Rewrite µÄ×Ó×é¼þÊ¹ÓÃÀ´¶¨ÒåÒ»ÌõÖØÐ´¹æÔò¡£ÏÂÃæÊÇÊ¹ÓÃÐÂ¶¨ÒåµÄ Rewrite ×é¼þµÄÊ¾Àý£º
+ç»„ä»¶ Roule å¯ä»¥ä½œä¸º Rewrite çš„å­ç»„ä»¶ä½¿ç”¨æ¥å®šä¹‰ä¸€æ¡é‡å†™è§„åˆ™ã€‚ä¸‹é¢æ˜¯ä½¿ç”¨æ–°å®šä¹‰çš„ Rewrite ç»„ä»¶çš„ç¤ºä¾‹ï¼š
 
 ```xml
 <!-- 04-03 -->
@@ -77,4 +77,4 @@ Rewrite: {
 </i:HTTP>
 ```
 
-´ËÊ¾ÀýµÄ×é¼þ Response ÓëÇ°Ãæ¸ø³öµÄÒ»ÖÂ¡£Äã¿ÉÒÔÔÚä¯ÀÀÆ÷ÖÐÊäÈëµØÖ· `http://localhost:8080` ÓëµØÖ· `http://localhost:8080/index` ·Ö±ð²âÊÔÁ½ÖÖ²»Í¬µÄÇé¿ö¡£
+æ­¤ç¤ºä¾‹çš„ç»„ä»¶ Response ä¸Žå‰é¢ç»™å‡ºçš„ä¸€è‡´ã€‚ä½ å¯ä»¥åœ¨æµè§ˆå™¨ä¸­è¾“å…¥åœ°å€ `http://localhost:8080` ä¸Žåœ°å€ `http://localhost:8080/index` åˆ†åˆ«æµ‹è¯•ä¸¤ç§ä¸åŒçš„æƒ…å†µã€‚

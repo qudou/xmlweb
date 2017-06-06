@@ -1,10 +1,10 @@
-# Â·ÓÉ
+# è·¯ç”±
 
-Â·ÓÉ×é¼þ Router ÊÇ xmlweb ÄÚÖÃµÄ×îÖØÒªµÄ×é¼þÖ®Ò»£¬Ëü¿É¸ù¾ÝÇëÇóÀàÐÍÓë URL Ä£Ê½´®Òýµ¼×´Ì¬»úÊý¾ÝÁ÷µÄ×ßÏò¡£ËüÍ¨³£×÷Îª×´Ì¬»ú½ÚµãµÄµÚÒ»¸ö×Ó½ÚµãÊ¹ÓÃ¡£
+è·¯ç”±ç»„ä»¶ Router æ˜¯ xmlweb å†…ç½®çš„æœ€é‡è¦çš„ç»„ä»¶ä¹‹ä¸€ï¼Œå®ƒå¯æ ¹æ®è¯·æ±‚ç±»åž‹ä¸Ž URL æ¨¡å¼ä¸²å¼•å¯¼çŠ¶æ€æœºæ•°æ®æµçš„èµ°å‘ã€‚å®ƒé€šå¸¸ä½œä¸ºçŠ¶æ€æœºèŠ‚ç‚¹çš„ç¬¬ä¸€ä¸ªå­èŠ‚ç‚¹ä½¿ç”¨ã€‚
 
-## ÇëÇóÀàÐÍ
+## è¯·æ±‚ç±»åž‹
 
-Â·ÓÉ×é¼þ Router ÓÐÒ»¾²Ì¬²ÎÊý `mothod` ÓÃÓÚÖ¸Ã÷½ÓÊÜµÄÊÇ GET ÇëÇó»¹ÊÇ POST ÇëÇó¡£ÆäÖÐ£¬Ä¬ÈÏµÄÇëÇó·½Ê½ÊÇ GET¡£ÈçÏÂÃæµÄÊ¾ÀýËùÊ¾£¬¸Ã web ·þÎñ½ö½ÓÊÕÂ·¾¶Îª `/index.html` µÄ GET ÇëÇó¡£
+è·¯ç”±ç»„ä»¶ Router æœ‰ä¸€é™æ€å‚æ•° `mothod` ç”¨äºŽæŒ‡æ˜ŽæŽ¥å—çš„æ˜¯ GET è¯·æ±‚è¿˜æ˜¯ POST è¯·æ±‚ã€‚å…¶ä¸­ï¼Œé»˜è®¤çš„è¯·æ±‚æ–¹å¼æ˜¯ GETã€‚å¦‚ä¸‹é¢çš„ç¤ºä¾‹æ‰€ç¤ºï¼Œè¯¥ web æœåŠ¡ä»…æŽ¥æ”¶è·¯å¾„ä¸º `/index.html` çš„ GET è¯·æ±‚ã€‚
 
 ```xml
 <!-- 02-01 -->
@@ -14,7 +14,7 @@
 </i:HTTP>
 ```
 
-´Ë web ·þÎñ¶ÔÓÚ²»·ûºÏÒªÇóµÄÇëÇó»áµ¼ÖÂ·þÎñ·µ»ØÄÚÖÃµÄ 404 Ò³Ãæ¡£ÔÙÇë¿´ÏÂÃæµÄÒ»¸ö POST ÇëÇóÊ¾Àý£º
+æ­¤ web æœåŠ¡å¯¹äºŽä¸ç¬¦åˆè¦æ±‚çš„è¯·æ±‚ä¼šå¯¼è‡´æœåŠ¡è¿”å›žå†…ç½®çš„ 404 é¡µé¢ã€‚å†è¯·çœ‹ä¸‹é¢çš„ä¸€ä¸ª POST è¯·æ±‚ç¤ºä¾‹ï¼š
 
 ```xml
 <!-- 02-02 -->
@@ -24,7 +24,7 @@
 </i:HTTP>
 ```
 
-¸Ã web ·þÎñ½ÓÊÜÈÎºÎÂ·¾¶µÄ POST ÇëÇó£¬µ«²»½ÓÊÕÈÎºÎµÄ GET ÇëÇó¡£Í¬ÑùÒ»µ©½ÓÊÕµ½²»·ûºÏÒªÇóµÄÇëÇó»áµ¼ÖÂ·þÎñ·µ»ØÄÚÖÃµÄ 404 Ò³Ãæ¡£ÏÂÃæÊÇ×é¼þ Response µÄº¯ÊýÏî£º
+è¯¥ web æœåŠ¡æŽ¥å—ä»»ä½•è·¯å¾„çš„ POST è¯·æ±‚ï¼Œä½†ä¸æŽ¥æ”¶ä»»ä½•çš„ GET è¯·æ±‚ã€‚åŒæ ·ä¸€æ—¦æŽ¥æ”¶åˆ°ä¸ç¬¦åˆè¦æ±‚çš„è¯·æ±‚ä¼šå¯¼è‡´æœåŠ¡è¿”å›žå†…ç½®çš„ 404 é¡µé¢ã€‚ä¸‹é¢æ˜¯ç»„ä»¶ Response çš„å‡½æ•°é¡¹ï¼š
 
 ```js
 // 02-02
@@ -36,26 +36,26 @@ function (sys, items, opts) {
 }
 ```
 
-ÎªÁË±ÜÃâÓÉÓÚ¿çÓòÇëÇóËù´øÀ´µÄÎÊÌâ£¬Äã¿ÉÒÔÊ¹ÓÃÈçÏÂµÄ `curl` ÃüÁîÀ´Íê³É POST ÇëÇóµÄ²âÊÔ£º
+ä¸ºäº†é¿å…ç”±äºŽè·¨åŸŸè¯·æ±‚æ‰€å¸¦æ¥çš„é—®é¢˜ï¼Œä½ å¯ä»¥ä½¿ç”¨å¦‚ä¸‹çš„ `curl` å‘½ä»¤æ¥å®Œæˆ POST è¯·æ±‚çš„æµ‹è¯•ï¼š
 
 ```bash
 $ curl -X POST http://localhost:8080
 ```
 
-µ±È»£¬Òª²âÊÔ GET ÇëÇóËù·µ»ØµÄ½á¹û£¬Ö»ÐèÒª°ÑÉÏÃæÃüÁîÐÐµÄ POST ¸ÃÎª GET ¼´¿É¡£
+å½“ç„¶ï¼Œè¦æµ‹è¯• GET è¯·æ±‚æ‰€è¿”å›žçš„ç»“æžœï¼Œåªéœ€è¦æŠŠä¸Šé¢å‘½ä»¤è¡Œçš„ POST è¯¥ä¸º GET å³å¯ã€‚
 
-## Â·¾¶Æ¥Åä
+## è·¯å¾„åŒ¹é…
 
-Â·ÓÉ×é¼þ Router °üº¬µÄ¾²Ì¬²ÎÊý `url` ÓÃÓÚÖ¸Ã÷Ëù½ÓÊÜµÄÂ·¾¶¼¯ºÏ£¬¸Ã²ÎÊý±í´ïÊ½µÄÐ´·¨ÀàËÆÓÚÕýÔò±í´ïÊ½¡£´Ë×é¼þÄÚ²¿ÓÉ¿ªÔ´Ä£¿é `path-to-regexp` À´½âÎö´Ë²ÎÊý¡£ÏÂÃæÊÇÒ»Ð©³£ÓÃµÄ±í´ïÄ£Ê½£º
+è·¯ç”±ç»„ä»¶ Router åŒ…å«çš„é™æ€å‚æ•° `url` ç”¨äºŽæŒ‡æ˜Žæ‰€æŽ¥å—çš„è·¯å¾„é›†åˆï¼Œè¯¥å‚æ•°è¡¨è¾¾å¼çš„å†™æ³•ç±»ä¼¼äºŽæ­£åˆ™è¡¨è¾¾å¼ã€‚æ­¤ç»„ä»¶å†…éƒ¨ç”±å¼€æºæ¨¡å— `path-to-regexp` æ¥è§£æžæ­¤å‚æ•°ã€‚ä¸‹é¢æ˜¯ä¸€äº›å¸¸ç”¨çš„è¡¨è¾¾æ¨¡å¼ï¼š
 
-- ÃüÃû²ÎÊý£ºÓÉ·ûºÅ `:` ¼Ó²ÎÊýÃûÀ´¶¨Òå£¬Èç `/:key`
-- ¿ÉÑ¡ºó×º£ºÓÉ·ûºÅ `?` ½ô¸ú²ÎÊý¶¨Òå£¬±íÊ¾²ÎÊýÎª¿ÉÑ¡£¬Èç `/:key?`
-- ÁãÖÁ¶à¸ö£ºÓÉ·ûºÅ `*` ½ô¸ú²ÎÊý¶¨Òå£¬±íÊ¾ÔÊÐí²ÎÊýÎªÁã¸ö»ò¶à¸ö£¬Èç `/:key*`
-- Ò»ÖÁ¶à¸ö£ºÓÉ·ûºÅ `+` ½ô¸ú²ÎÊý¶¨Òå£¬±íÊ¾ÔÊÐí²ÎÊýÎªÒ»¸ö»ò¶à¸ö£¬Èç `/:key+`
-- ×Ô¶¨Òå²ÎÊý£º¿ÉÒÔÊÇÈÎºÎµÄºÏ·¨µÄÕýÔò±í´ïÊ½µÄ×Ö·û´®±íÊ¾£¬Èç `/:key(\\w+)`
-- ÐÇºÅ£ºÐÇºÅ `*` ÓÃÓÚÆ¥ÅäÒ»ÇÐ×Ó¼¶Â·¾¶£¬Èç `/:key/*`
+- å‘½åå‚æ•°ï¼šç”±ç¬¦å· `:` åŠ å‚æ•°åæ¥å®šä¹‰ï¼Œå¦‚ `/:key`
+- å¯é€‰åŽç¼€ï¼šç”±ç¬¦å· `?` ç´§è·Ÿå‚æ•°å®šä¹‰ï¼Œè¡¨ç¤ºå‚æ•°ä¸ºå¯é€‰ï¼Œå¦‚ `/:key?`
+- é›¶è‡³å¤šä¸ªï¼šç”±ç¬¦å· `*` ç´§è·Ÿå‚æ•°å®šä¹‰ï¼Œè¡¨ç¤ºå…è®¸å‚æ•°ä¸ºé›¶ä¸ªæˆ–å¤šä¸ªï¼Œå¦‚ `/:key*`
+- ä¸€è‡³å¤šä¸ªï¼šç”±ç¬¦å· `+` ç´§è·Ÿå‚æ•°å®šä¹‰ï¼Œè¡¨ç¤ºå…è®¸å‚æ•°ä¸ºä¸€ä¸ªæˆ–å¤šä¸ªï¼Œå¦‚ `/:key+`
+- è‡ªå®šä¹‰å‚æ•°ï¼šå¯ä»¥æ˜¯ä»»ä½•çš„åˆæ³•çš„æ­£åˆ™è¡¨è¾¾å¼çš„å­—ç¬¦ä¸²è¡¨ç¤ºï¼Œå¦‚ `/:key(\\w+)`
+- æ˜Ÿå·ï¼šæ˜Ÿå· `*` ç”¨äºŽåŒ¹é…ä¸€åˆ‡å­çº§è·¯å¾„ï¼Œå¦‚ `/:key/*`
 
-ÀýÈç£¬ÏÂÃæµÄ web ·þÎñÓ¦ÓÃ¿ÉÒÔ½ÓÊÜÂ·¾¶Îª `/xml` »òÕßÈÎºÎÒÔ `/xml` ¿ªÍ·µÄ GET ÇëÇó£º
+ä¾‹å¦‚ï¼Œä¸‹é¢çš„ web æœåŠ¡åº”ç”¨å¯ä»¥æŽ¥å—è·¯å¾„ä¸º `/xml` æˆ–è€…ä»»ä½•ä»¥ `/xml` å¼€å¤´çš„ GET è¯·æ±‚ï¼š
 
 ```xml
 <!-- 02-03 -->
@@ -65,7 +65,7 @@ $ curl -X POST http://localhost:8080
 </i:HTTP>
 ```
 
-ÔÙÈç£¬ÏÂÃæµÄ web ·þÎñÓ¦ÓÃ¿ÉÒÔ½ÓÊÜÂ·¾¶Îª `/helo` »òÕß `/hello` µÄ GET ÇëÇó£º
+å†å¦‚ï¼Œä¸‹é¢çš„ web æœåŠ¡åº”ç”¨å¯ä»¥æŽ¥å—è·¯å¾„ä¸º `/helo` æˆ–è€… `/hello` çš„ GET è¯·æ±‚ï¼š
 
 ```xml
 <!-- 02-04 -->
@@ -75,11 +75,11 @@ $ curl -X POST http://localhost:8080
 </i:HTTP>
 ```
 
-×¢Òâ£¬ÉÏÃæµÄÄ£Ê½´®²»ÄÜÐ´³É `/hel?lo`£¬·ñÔòÎÊºÅ»á±»µ±³É×Ö·û´¦Àí¡£
+æ³¨æ„ï¼Œä¸Šé¢çš„æ¨¡å¼ä¸²ä¸èƒ½å†™æˆ `/hel?lo`ï¼Œå¦åˆ™é—®å·ä¼šè¢«å½“æˆå­—ç¬¦å¤„ç†ã€‚
 
-## ÃüÃû²ÎÊýÖµµÄ»ñÈ¡
+## å‘½åå‚æ•°å€¼çš„èŽ·å–
 
-Èç¹û¾²Ì¬²ÎÊý `url` ÖÐ°üº¬ÓÐÃüÃû²ÎÊý£¬ÄÇÃ´Êý¾ÝÁ÷¾­¹ý Router ×é¼þ½ÚµãÊ±£¬¸÷ÃüÃû²ÎÊýÏàÓ¦µÄÖµ½«»á±»½âÎö³öÀ´×÷ÎªÒ»¸öÆÕÍ¨µÄ JSON ¶ÔÏó¸³Öµ¸øÊý¾ÝÁ÷µÄ×Ó²ÎÊý `args`¡£Çë¿´ÏÂÃæµÄÒ»¸öÊ¾Àý£º
+å¦‚æžœé™æ€å‚æ•° `url` ä¸­åŒ…å«æœ‰å‘½åå‚æ•°ï¼Œé‚£ä¹ˆæ•°æ®æµç»è¿‡ Router ç»„ä»¶èŠ‚ç‚¹æ—¶ï¼Œå„å‘½åå‚æ•°ç›¸åº”çš„å€¼å°†ä¼šè¢«è§£æžå‡ºæ¥ä½œä¸ºä¸€ä¸ªæ™®é€šçš„ JSON å¯¹è±¡èµ‹å€¼ç»™æ•°æ®æµçš„å­å‚æ•° `args`ã€‚è¯·çœ‹ä¸‹é¢çš„ä¸€ä¸ªç¤ºä¾‹ï¼š
 
 ```xml
 <!-- 02-05 -->
@@ -89,7 +89,7 @@ $ curl -X POST http://localhost:8080
 </i:HTTP>
 ```
 
-¸ÃÊ¾ÀýµÄ Index ×é¼þµÄº¯ÊýÏîµÄ¾ßÌåÄÚÈÝÈçÏÂ£º
+è¯¥ç¤ºä¾‹çš„ Index ç»„ä»¶çš„å‡½æ•°é¡¹çš„å…·ä½“å†…å®¹å¦‚ä¸‹ï¼š
 
 ```js
 // 02-05
@@ -101,15 +101,15 @@ function (sys, items, opts) {
 }
 ```
 
-ÔËÐÐÕâ¸öÊ¾Àý£¬Èç¹ûÊäÈëµÄ url ÊÇ `http://localhost:8080/alice/bob`£¬ÄÇÃ´Äã½«»á¿´µ½ÈçÏÂµÄÊä³ö£º
+è¿è¡Œè¿™ä¸ªç¤ºä¾‹ï¼Œå¦‚æžœè¾“å…¥çš„ url æ˜¯ `http://localhost:8080/alice/bob`ï¼Œé‚£ä¹ˆä½ å°†ä¼šçœ‹åˆ°å¦‚ä¸‹çš„è¾“å‡ºï¼š
 
 ```json
 { "foo": "alice", "bar": "bob" }
 ```
 
-## GET ÇëÇóÊý¾ÝµÄ»ñÈ¡
+## GET è¯·æ±‚æ•°æ®çš„èŽ·å–
 
-ÓëÃüÃû²ÎÊýÖµµÄ»ñÈ¡ÀàËÆ£¬GET ÇëÇóÊý¾ÝµÄ»ñÈ¡Ò²ÊÇÓÉÊý¾ÝÁ÷µÄ×Ó²ÎÊý `args` ²ÎÊýµÃµ½µÄ¡£ÏÖÔÚÈÃÎÒÃÇ¶ÔÉÏÃæµÄÊ¾Àý×öµãÐÞ¸Ä£º
+ä¸Žå‘½åå‚æ•°å€¼çš„èŽ·å–ç±»ä¼¼ï¼ŒGET è¯·æ±‚æ•°æ®çš„èŽ·å–ä¹Ÿæ˜¯ç”±æ•°æ®æµçš„å­å‚æ•° `args` å‚æ•°å¾—åˆ°çš„ã€‚çŽ°åœ¨è®©æˆ‘ä»¬å¯¹ä¸Šé¢çš„ç¤ºä¾‹åšç‚¹ä¿®æ”¹ï¼š
 
 ```xml
 <!-- 02-06 -->
@@ -119,17 +119,17 @@ function (sys, items, opts) {
 </i:HTTP>
 ```
 
-¸ÃÊ¾ÀýµÄ Response ×é¼þµÄº¯ÊýÏîµÄÓëÇ°ÃæµÄÒ»ÖÂ¡£ÔËÐÐÕâ¸öÊ¾Àý£¬Èç¹ûÊäÈëµÄ url ÊÇ `http://localhost:81/alice?bar=bob`£¬ÄÇÃ´Äã½«»á¿´µ½ÓëÇ°Ò»¸öÊ¾ÀýÒ»ÑùµÄÊä³ö£º
+è¯¥ç¤ºä¾‹çš„ Response ç»„ä»¶çš„å‡½æ•°é¡¹çš„ä¸Žå‰é¢çš„ä¸€è‡´ã€‚è¿è¡Œè¿™ä¸ªç¤ºä¾‹ï¼Œå¦‚æžœè¾“å…¥çš„ url æ˜¯ `http://localhost:81/alice?bar=bob`ï¼Œé‚£ä¹ˆä½ å°†ä¼šçœ‹åˆ°ä¸Žå‰ä¸€ä¸ªç¤ºä¾‹ä¸€æ ·çš„è¾“å‡ºï¼š
 
 ```json
 { "foo": "alice", "bar": "bob" }
 ```
 
-ÁíÍâÒª×¢Òâ£¬Ê¾ÀýÖÐµÄÄ£Ê½´®ÖÐµÄÎÊºÅ±ØÐè¼ÓË«Ð±¸Ë£¬·ñÔò¸ÃÎÊºÅ½«¶ÔÇ°ÃæµÄ `foo` Æð×÷ÓÃ¡£
+å¦å¤–è¦æ³¨æ„ï¼Œç¤ºä¾‹ä¸­çš„æ¨¡å¼ä¸²ä¸­çš„é—®å·å¿…éœ€åŠ åŒæ–œæ†ï¼Œå¦åˆ™è¯¥é—®å·å°†å¯¹å‰é¢çš„ `foo` èµ·ä½œç”¨ã€‚
 
-## POST ÇëÇóÊý¾ÝµÄ»ñÈ¡
+## POST è¯·æ±‚æ•°æ®çš„èŽ·å–
 
-Óë GET ÇëÇó²»Í¬£¬Èç¹ûÊÇ POST ÇëÇó£¬Äã²»µ«¿ÉÒÔ»ñÈ¡µ½ÉÏÊöµÄÁ½ÀàÊý¾Ý£¬»¹¿ÉÒÔµÃµ½ÇëÇó±¨ÎÄµÄÖ÷ÌåÐÅÏ¢¡£¸ÃÐÅÏ¢±»½âÎö³öÀ´ºó»á¸³Öµ¸øÊý¾ÝÁ÷µÄ×Ó²ÎÊý `body`¡£Çë¿´ÏÂÃæµÄÊ¾Àý£º
+ä¸Ž GET è¯·æ±‚ä¸åŒï¼Œå¦‚æžœæ˜¯ POST è¯·æ±‚ï¼Œä½ ä¸ä½†å¯ä»¥èŽ·å–åˆ°ä¸Šè¿°çš„ä¸¤ç±»æ•°æ®ï¼Œè¿˜å¯ä»¥å¾—åˆ°è¯·æ±‚æŠ¥æ–‡çš„ä¸»ä½“ä¿¡æ¯ã€‚è¯¥ä¿¡æ¯è¢«è§£æžå‡ºæ¥åŽä¼šèµ‹å€¼ç»™æ•°æ®æµçš„å­å‚æ•° `body`ã€‚è¯·çœ‹ä¸‹é¢çš„ç¤ºä¾‹ï¼š
 
 ```xml
 <!-- 02-07 -->
@@ -139,7 +139,7 @@ function (sys, items, opts) {
 </i:HTTP>
 ```
 
-¸ÃÊ¾ÀýµÄ Response ×é¼þµÄº¯ÊýÏîµÄ¾ßÌåÄÚÈÝÈçÏÂ£º
+è¯¥ç¤ºä¾‹çš„ Response ç»„ä»¶çš„å‡½æ•°é¡¹çš„å…·ä½“å†…å®¹å¦‚ä¸‹ï¼š
 
 ```js
 // 02-07
@@ -151,12 +151,12 @@ function (sys, items, opts) {
 }
 ```
 
-ÎªÁË±ÜÃâÓÉÓÚ¿çÓòÇëÇóËù´øÀ´µÄÎÊÌâ£¬Äã¿ÉÒÔÊ¹ÓÃÈçÏÂµÄ `curl` ÃüÁîÀ´Íê³É POST ÇëÇóµÄ²âÊÔ£º
+ä¸ºäº†é¿å…ç”±äºŽè·¨åŸŸè¯·æ±‚æ‰€å¸¦æ¥çš„é—®é¢˜ï¼Œä½ å¯ä»¥ä½¿ç”¨å¦‚ä¸‹çš„ `curl` å‘½ä»¤æ¥å®Œæˆ POST è¯·æ±‚çš„æµ‹è¯•ï¼š
 
 ```bash
 $ curl -H "Content-type: application/json" -X POST -d '{"key":"2017"}' http://localhost:8080
 ```
 
-×ÐÏ¸¹Û²ì£¬¸ÃÃüÁîÌí¼ÓÁËÒ»¸öÇëÇóÍ· `Content-type: application/json`£¬ÕâÑùºóÌ¨»áÊÔÍ¼½«Ä¿±êÊý¾Ý½âÎöÎª JSON ×é¼þ¶ÔÏó¡£
+ä»”ç»†è§‚å¯Ÿï¼Œè¯¥å‘½ä»¤æ·»åŠ äº†ä¸€ä¸ªè¯·æ±‚å¤´ `Content-type: application/json`ï¼Œè¿™æ ·åŽå°ä¼šè¯•å›¾å°†ç›®æ ‡æ•°æ®è§£æžä¸º JSON ç»„ä»¶å¯¹è±¡ã€‚
 
-ÓÐÊ±ÄãÐèÒª×Ô¼º´¦ÀíÇëÇó±¨ÎÄµÄÖ÷ÌåÐÅÏ¢£¬ÄÇÃ´Äã¿ÉÒÔÉèÖÃ Router ×é¼þµÄ¾²Ì¬²ÎÊý `usebody` Îª `false` À´½ûÖ¹¶ÔÖ÷ÌåÐÅÏ¢µÄ½âÎö¡£
+æœ‰æ—¶ä½ éœ€è¦è‡ªå·±å¤„ç†è¯·æ±‚æŠ¥æ–‡çš„ä¸»ä½“ä¿¡æ¯ï¼Œé‚£ä¹ˆä½ å¯ä»¥è®¾ç½® Router ç»„ä»¶çš„é™æ€å‚æ•° `usebody` ä¸º `false` æ¥ç¦æ­¢å¯¹ä¸»ä½“ä¿¡æ¯çš„è§£æžã€‚

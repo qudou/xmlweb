@@ -19,8 +19,8 @@ $_().imports({
                 d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject", d);
             });
             this.on("reject", (e, d) => {
-				d.res.statusCode = 404;
-				d.res.setHeader("Content-Type", "text/html");
+                d.res.statusCode = 404;
+                d.res.setHeader("Content-Type", "text/html");
                 d.res.end("Not Found");
             });
             require("http").createServer((req, res) => {
