@@ -4,10 +4,17 @@ xmlweb 是一个基于状态机理论设计的 web 服务器，使用它可以�
 
 ## 安装
 
-通过 npm，你可以非常方便使用如下命令安装 xmlweb。
+通过 npm，你可以非常方便使用如下命令安装 xmlweb：
 
 ```bash
 $ npm install xmlweb
+```
+
+或者，你也可以通过 git 和 npm 使用如下的命令来安装：
+
+```bash
+$ git clone git clone https://github.com/qudou/xmlweb.git
+$ npm install
 ```
 
 下面是项目的基本组织结构：
