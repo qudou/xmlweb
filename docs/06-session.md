@@ -8,12 +8,10 @@ xmlweb 内置了一个 Session 组件，你可以像下面这样创建一个 Ses
 
 ```xml
 <!-- 06-01 -->
-Index: {
-    xml: "<i:HTTP xmlns:i='//xmlweb'>\
-              <i:Session id='session'/>\
-              <Response id='response'/>\
-          </i:HTTP>"
-}
+<i:HTTP xmlns:i='//xmlweb'>
+    <i:Session id='session'/>
+    <Response id='response'/>
+</i:HTTP>
 ```
 
 组件 Session 包含了如下的几个静态参数，你可以按需对默认值进行覆盖：
@@ -32,13 +30,13 @@ Response: {
             d.session.count = d.session.count || 0;
             d.session.count++;
             d.res.setHeader("Content-Type", "text/html");
-            d.res.end("you viewed this site ${d.session.count} times");
+            d.res.end(`you viewed this site ${d.session.count} times`);
         });
     }
 }
 ```
 
-此示例记录了用户访问站点的次数，每访问一次 `session` 中 `count` 属性值便增加 `1`。数据流中的 `session` 对象在创建之初包含了两个内容：`ssid` 和 `createtime`，前进者是维系会话的标识符，后者是 session 对象的创建时间。
+此示例记录了用户访问站点的次数，每访问一次，`session` 中 `count` 属性值便增加 `1`。数据流中的 `session` 对象在创建之初包含了两个内容：`ssid` 和 `createtime`，前者是维系会话的标识符，后者是 session 对象的创建时间。
 
 ## 会话的存储
 

@@ -13,8 +13,7 @@ $ npm install xmlweb
 或者，你也可以通过 git 和 npm 使用如下的命令来安装：
 
 ```bash
-$ git clone git clone https://github.com/qudou/xmlweb.git
-$ npm install
+$ git clone https://github.com/qudou/xmlweb.git && cd xmlweb && npm install
 ```
 
 下面是项目的基本组织结构：

@@ -338,6 +338,7 @@ $_("static").imports({
         }
     },
     Ranges: {
+        xml: "<IsRangeFresh id='isRangeFresh' xmlns='ranges'/>",
         fun: function (sys, items, opts) {
             let fs = require("fs"),
                 regexp = /^ *bytes=/,
@@ -345,7 +346,7 @@ $_("static").imports({
             this.on("enter", (e, d) => {
                 let len = d.stat.size, ranges = d.req.headers.range;
                 d.res.setHeader("Accept-Ranges", "bytes");
-                if ( !regexp.test(ranges) || !isRangeFresh(d) )
+                if ( !regexp.test(ranges) || !items.isRangeFresh(d.res) )
                     return this.trigger("next", d);
                 ranges = parseRange(len, ranges, {combine: true});
                 if ( ranges === -1 ) {
@@ -362,20 +363,6 @@ $_("static").imports({
                 }
                 this.trigger("next", d);
             });
-            function isRangeFresh (d) {
-                let ifRange = d.req.headers['if-range'];
-                if (!ifRange) return true;
-                if (ifRange.indexOf('"') !== -1) {
-                    let etag = d.res.getHeader('ETag');
-                    return Boolean(etag && ifRange.indexOf(etag) !== -1);
-                }
-                let lastModified = d.res.getHeader('Last-Modified');
-                return parseHttpDate(lastModified) <= parseHttpDate(ifRange);
-            }
-            function parseHttpDate (date) {
-                let timestamp = date && Date.parse(date);
-                return typeof timestamp === 'number' ? timestamp : NaN;
-            }
         }
     },
     Cache: {
@@ -440,6 +427,27 @@ $_("static").imports({
                 d.res.setHeader("Content-Type", "text/html");
                 d.res.end(util.inspect(d.err));
             });
+        }
+    }
+});
+
+$_("static/ranges").imports({
+    IsRangeFresh: {
+        fun: function (sys, items, opts) {
+            return (res) => {
+                let ifRange = req.headers['if-range'];
+                if (!ifRange) return true;
+                if (ifRange.indexOf('"') !== -1) {
+                    let etag = res.getHeader('ETag');
+                    return Boolean(etag && ifRange.indexOf(etag) !== -1);
+                }
+                let lastModified = res.getHeader('Last-Modified');
+                return parseHttpDate(lastModified) <= parseHttpDate(ifRange);
+            };
+            function parseHttpDate (date) {
+                let timestamp = date && Date.parse(date);
+                return typeof timestamp === 'number' ? timestamp : NaN;
+            }
         }
     }
 });
