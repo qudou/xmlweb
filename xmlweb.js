@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.0.11
+ * xmlweb.js v1.0.12
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license

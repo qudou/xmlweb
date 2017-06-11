@@ -61,52 +61,31 @@ Response: {
 
 xmlweb 内置了一个 session 的存储驱动组件 Storage，它位于命名空间 `//xmlweb/session` 中，它包含了如下的三个接口：
 
-```js
-load()
-```
-
-用于加载存储的所有的 session 对象，加载完毕需要派发一个 `session-loaded` 事件，携带参数为一个 `session` 数组。
-
-```js
-save(ssid, session)
-```
-
-- `ssid`: `String` `session` 标识符
-- `session` `PlainObject` 一个 `session` 对象
-
-用于保存或者覆盖一个 `session` 对象，如果已存在则覆盖，否则新存储一个。
-
-```js
-remove(ssid)
-```
-
-- `ssid`: `String` `session` 标识符
-
-用于移除一个 `session` 对象。
+- `load()`: 加载存储的所有的 session 对象，加载完毕需派发 `session-loaded` 事件，改事件携带一个 `session` 数组
+- `save(ssid, session)`: 保存或者覆盖一个 `session` 对象，如果已存在则覆盖，否则新添加一个
+- `remove(ssid)`: 移除一个 `session` 对象
 
 组件 Storage 将数据以文本形式存放。你可以使用一个实现了上述接口的同名组件来覆盖默认的内置组件，如下面的示例所示：
 
 ```js
 // 06-03
 Storage: {
-    xml: "<main id='storage'/>",
+    xml: "<Sqlite id='db'/>",
     fun: function(sys, items, opts) {
-        let sqlite = require("sqlite3").verbose(),
-            db = new sqlite.Database("data.db");
         function load() {
-            db.all("SELECT * FROM sessions", (err, rows) => {
+            items.db.all("SELECT * FROM sessions", (err, rows) => {
                 if ( err ) { throw err; }
                 let result = [];
                 rows.forEach(item => result.push(JSON.parse(item.data)));
-                sys.storage.trigger("session-loaded", result, false);
+                sys.storage.trigger("session-loaded", [result], false);
             });
         }
         function save(ssid, session) {
-            let stmt = db.prepare("INSERT INTO sessions(ssid, data) VALUES(?,?)");
+            let stmt = items.db.prepare("INSERT INTO sessions(ssid, data) VALUES(?,?)");
             stmt.run(JSON.stringify(session), err => {if (err) throw err});
         }
         function remove(ssid) {
-            let stmt = db.prepare("DELETE FROM sessions WHERE ssid=?");
+            let stmt = items.db.prepare("DELETE FROM sessions WHERE ssid=?");
             stmt.run(ssid, err => {if ( err ) throw err});
         }
         return { load: load, save: save, remove: remove };
@@ -114,7 +93,7 @@ Storage: {
 }
 ```
 
-该 Storage 组件简单地实现了将 session 数据保存在 sqlite 数据库中。此数据库仅包含两个列：`ssid` 和 `data`，其中列 `data` 用于存放 `session` 对象集。
+该 Storage 组件简单地实现了将 session 数据保存在 sqlite 数据库中。此数据库仅包含两个列：`ssid` 和 `data`，其中列 `ssid` 是一个 session 标识符，列 `data` 用于存放 `session` 对象集。
 
 ## 会话的移除
 
@@ -136,4 +115,4 @@ Response: {
 }
 ```
 
-该组件内部判断计数器的计数情况，当计数器计数大于 `5` 时，随即派发一个移除 session 的操作，这样下次计数又得从 `0` 开始了。
+该组件内部判断计数器的计数情况，当计数器计数大于 `5` 时，随即派发一个移除 `session` 的操作，这样下次计数又得从 `0` 开始了。
