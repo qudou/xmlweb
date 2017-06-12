@@ -77,7 +77,7 @@ Storage: {
                 if ( err ) { throw err; }
                 let result = [];
                 rows.forEach(item => result.push(JSON.parse(item.data)));
-                sys.storage.trigger("session-loaded", [result], false);
+                sys.db.trigger("session-loaded", [result], false);
             });
         }
         function save(ssid, session) {
