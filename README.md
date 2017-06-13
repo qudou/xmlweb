@@ -1,6 +1,6 @@
 # [xmlweb](https://github.com/qudou/xmlweb) &middot; <a href="https://www.npmjs.com/package/xmlweb"><img src="https://img.shields.io/npm/dt/xmlweb.svg" alt="Downloads"></a> <a href="https://www.npmjs.com/package/xmlweb"><img src="https://img.shields.io/npm/v/xmlweb.svg" alt="Version"></a> <a href="https://www.npmjs.com/package/xmlweb"><img src="https://img.shields.io/npm/l/xmlweb.svg" alt="License"></a>
 
-Xmlweb is a web server designed based on the state machine theory. Before you learn to use the framework, make sure you are familiar with the [xmlplus] (http://xmlplus.cn) framework.
+Xmlweb is a web server designed based on the state machine theory. Before you learn to use the framework, make sure you are familiar with the [xmlplus](http://xmlplus.cn) framework.
 
 ## Installation
 
