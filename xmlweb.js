@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.1.16
+ * xmlweb.js v1.1.17
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -26,7 +26,7 @@ $_().imports({
             });
             const os = require('os').type();
             require("http").createServer((req, res) => {
-                res.setHeader("Server", `xmlweb/1.1.16 ${os}`);
+                res.setHeader("Server", `xmlweb/1.1.17 ${os}`);
                 first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
             }).listen(opts.listen || 8080);
         }
@@ -156,7 +156,7 @@ $_("rewrite").imports({
                 this.trigger("next", d);
             });
             function toMap(params) {
-                var map = {};
+                let map = {};
                 params.forEach((param, i) => {
                     param.index = i;
                     map[param.name] = param;
@@ -369,12 +369,12 @@ $_("static").imports({
         xml: "<IsRangeFresh id='isRangeFresh' xmlns='conditions'/>",
         fun: function (sys, items, opts) {
             let fs = require("fs"),
-                regexp = /^ *bytes=/,
+                BYTES_RANGE = /^ *bytes=/,
                 parseRange = require('range-parser');
             this.on("enter", (e, d) => {
                 let len = d.stat.size, ranges = d.req.headers.range;
                 d.res.setHeader("Accept-Ranges", "bytes");
-                if ( !regexp.test(ranges) || !items.isRangeFresh(d.req, d.res) )
+                if ( !BYTES_RANGE.test(ranges) || !items.isRangeFresh(d.req, d.res) )
                     return this.trigger("next", d);
                 ranges = parseRange(len, ranges, {combine: true});
                 if ( ranges === -1 ) {
@@ -435,8 +435,9 @@ $_("static/conditions").imports({
     IsPreconditionFailure: {
         xml: "<ParseHttpDate id='parseHttpDate'/>",
         fun: function (sys, items, opts) {
+            const TOKEN_LIST = / *, */;
             return (req, res) => {
-                var match = req.headers['if-match']
+                let match = req.headers['if-match']
                 if (match) {
                     let etag = res.getHeader('ETag');
                     return !etag || (match !== '*' && match.split(TOKEN_LIST_REGEXP).every(match => {
