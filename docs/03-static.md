@@ -30,7 +30,6 @@
     <s:Ranges id='ranges'/>
     <s:Compress id='compress'/>
     <s:Output id='output'/>
-    <s:Err500 id='err500'/>
 </Flow>
 ```
 
@@ -42,7 +41,6 @@
 - Ranges: 部分资源的范围请求的处理
 - Compress：文件压缩处理
 - Output：响应请求
-- Err500：响应内部错误，如果前面的某些步骤的处理过程发生异常，数据流将跳转至此节点
 
 ## 自定义 404 页面
 

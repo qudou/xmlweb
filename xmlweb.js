@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.0.16
+ * xmlweb.js v1.1.16
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -18,14 +18,15 @@ $_().imports({
                 d.ptr[0] = table[next] || d.ptr[0].next();
                 d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject", d);
             });
+            let statuses = require("statuses");
             this.on("reject", (e, d) => {
-                d.res.statusCode = 404;
-                d.res.setHeader("Content-Type", "text/html");
-                d.res.end("Not Found");
+                d.res.statusCode = d.status || 404;
+                d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
+                d.res.end(statuses[d.status] || String(d.status));
             });
             const os = require('os').type();
             require("http").createServer((req, res) => {
-                res.setHeader("Server", `xmlweb/1.0.16 ${os}`);
+                res.setHeader("Server", `xmlweb/1.1.16 ${os}`);
                 first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
             }).listen(opts.listen || 8080);
         }
@@ -67,7 +68,6 @@ $_().imports({
                 <s:Ranges id='ranges'/>\
                 <s:Compress id='compress'/>\
                 <s:Output id='output'/>\
-                <s:Err500 id='err500'/>\
               </Flow>",
         opt: { root: ".", url: "/*" }, 
         map: { attrs: { status: "root", router: "url" } }
@@ -325,11 +325,11 @@ $_("static").imports({
                 d.path = path.join(opts.root, url.parse(d.url).pathname);
                 let s = await status(d.path);
                 if ( s.err == null ) {
-                    s.stat.isFile() ? this.trigger("next", (d.stat = s.stat, d)) : this.trigger("reject", d);
+                    s.stat.isFile() ? this.trigger("next", (d.stat = s.stat, d)) : this.trigger("reject", (d.status = 404, d));
                 } else if (s.err.code == "ENOENT") {
                     this.trigger("reject", d);
                 } else {
-                    d.err = s.err, this.trigger("next", [d,"err500"]);
+                    this.trigger("reject", (d.status = 500, d));
                 }
             });
             function status(path) {
@@ -338,18 +338,25 @@ $_("static").imports({
         }
     },
     Cache: {
+        xml: "<IsPreconditionFailure id='isPreconditionFailure' xmlns='conditions'/>",
         fun: function (sys, items, opts) {
-            let etag = require("etag"),
-                fresh = require("fresh");
+            let etag = require("etag"), fresh = require("fresh");
             this.on("enter", (e, d) => {
                 d.res.setHeader('ETag', etag(d.stat));
                 d.res.setHeader('Last-Modified', d.stat.mtime.toUTCString());
-                if (!isFresh(d.req, d.res))
-                    return this.trigger("next", d);
-                d.res.statusCode = 304;
-                d.res.setHeader("Content-Type", "text/html");
-                return d.res.end();
+                if (isConditionalGET(d.req))
+                    if (items.isPreconditionFailure(d.req, d.res)) {
+                        return this.trigger("reject", (d.status = 412, d));
+                    } else if (isFresh(d.req, d.res)) {
+                        d.res.statusCode = 304;
+                        d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
+                        return d.res.end("Not Modified");
+                    }
+                this.trigger("next", d);
             });
+            function isConditionalGET (req) {
+                return req.headers['if-match'] || req.headers['if-unmodified-since'] || req.headers['if-none-match'] || req.headers['if-modified-since'];
+            }
             function isFresh (req, res) {
                 return fresh(req.headers, {
                   'etag': res.getHeader('ETag'),
@@ -359,7 +366,7 @@ $_("static").imports({
         }
     },
     Ranges: {
-        xml: "<IsRangeFresh id='isRangeFresh' xmlns='ranges'/>",
+        xml: "<IsRangeFresh id='isRangeFresh' xmlns='conditions'/>",
         fun: function (sys, items, opts) {
             let fs = require("fs"),
                 regexp = /^ *bytes=/,
@@ -372,8 +379,7 @@ $_("static").imports({
                 ranges = parseRange(len, ranges, {combine: true});
                 if ( ranges === -1 ) {
                     d.res.setHeader('Content-Range', `bytes */${len}}`);
-                    d.res.statusCode = 416;
-                    return d.res.end();
+                    return this.trigger("reject", (d.status = 416, d));
                 }
                 if ( ranges.length === 1 ) {
                     d.res.statusCode = 206;
@@ -422,21 +428,31 @@ $_("static").imports({
                 d.raw.pipe(d.res);
             });
         }
-    },
-    Err500: {
-        fun: function (sys, items, opts) {
-            let util = require("util");
-            this.on("enter", (e, d) => {
-                d.res.statusCode = 500;
-                d.res.setHeader("Content-Type", "text/html");
-                d.res.end(util.inspect(d.err));
-            });
-        }
     }
 });
 
-$_("static/ranges").imports({
+$_("static/conditions").imports({
+    IsPreconditionFailure: {
+        xml: "<ParseHttpDate id='parseHttpDate'/>",
+        fun: function (sys, items, opts) {
+            return (req, res) => {
+                var match = req.headers['if-match']
+                if (match) {
+                    let etag = res.getHeader('ETag');
+                    return !etag || (match !== '*' && match.split(TOKEN_LIST_REGEXP).every(match => {
+                        return match !== etag && match !== 'W/' + etag && 'W/' + match !== etag;
+                    }));
+                }
+                let unmodifiedSince = items.parseHttpDate(req.headers['if-unmodified-since'])
+                if (!isNaN(unmodifiedSince)) {
+                    let lastModified = items.parseHttpDate(res.getHeader('Last-Modified'));
+                    return isNaN(lastModified) || lastModified > unmodifiedSince;
+                }
+            };
+        }
+    },
     IsRangeFresh: {
+        xml: "<ParseHttpDate id='parseHttpDate'/>",
         fun: function (sys, items, opts) {
             return (req, res) => {
                 let ifRange = req.headers['if-range'];
@@ -446,12 +462,16 @@ $_("static/ranges").imports({
                     return Boolean(etag && ifRange.indexOf(etag) !== -1);
                 }
                 let lastModified = res.getHeader('Last-Modified');
-                return parseHttpDate(lastModified) <= parseHttpDate(ifRange);
+                return items.parseHttpDate(lastModified) <= items.parseHttpDate(ifRange);
             };
-            function parseHttpDate (date) {
+        }
+    },
+    ParseHttpDate: {
+        fun: function (sys, items, opts) {
+            return date => {
                 let timestamp = date && Date.parse(date);
                 return typeof timestamp === 'number' ? timestamp : NaN;
-            }
+            };
         }
     }
 });
