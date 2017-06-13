@@ -26,8 +26,8 @@
 <Flow xmlns:s='static'>
     <Router id='router'/>
     <s:Status id='status'/>
-    <s:Ranges id='ranges'/>
     <s:Cache id='catch'/>
+    <s:Ranges id='ranges'/>
     <s:Compress id='compress'/>
     <s:Output id='output'/>
     <s:Err500 id='err500'/>
@@ -38,8 +38,8 @@
 
 - Router：过滤掉所有的非 GET 请求
 - Status：获取目录文件的状态属性，如果文件不允许访问，会导致状态机停机
-- Ranges: 部分资源的范围请求的处理
 - Catch：文件缓存处理
+- Ranges: 部分资源的范围请求的处理
 - Compress：文件压缩处理
 - Output：响应请求
 - Err500：响应内部错误，如果前面的某些步骤的处理过程发生异常，数据流将跳转至此节点

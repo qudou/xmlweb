@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.0.15
+ * xmlweb.js v1.0.16
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -25,7 +25,7 @@ $_().imports({
             });
             const os = require('os').type();
             require("http").createServer((req, res) => {
-                res.setHeader("Server", `xmlweb/1.0.15 ${os}`);
+                res.setHeader("Server", `xmlweb/1.0.16 ${os}`);
                 first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
             }).listen(opts.listen || 8080);
         }
@@ -63,8 +63,8 @@ $_().imports({
         xml: "<Flow xmlns:s='static'>\
                 <Router id='router'/>\
                 <s:Status id='status'/>\
-                <s:Ranges id='ranges'/>\
                 <s:Cache id='catch'/>\
+                <s:Ranges id='ranges'/>\
                 <s:Compress id='compress'/>\
                 <s:Output id='output'/>\
                 <s:Err500 id='err500'/>\
