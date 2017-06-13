@@ -420,11 +420,9 @@ $_("static").imports({
         fun: function (sys, items, opts) {
             let mime = require("mime");
             this.on("enter", (e, d) => {
-                let type = mime.lookup(d.path);
-                if (type) {
-                    let charset = mime.charsets.lookup(type);
-                    d.res.setHeader('Content-Type', type + (charset ? '; charset=' + charset : ''));
-                }
+                let type = mime.lookup(d.path),
+                    charset = mime.charsets.lookup(type);
+                d.res.setHeader('Content-Type', type + (charset ? '; charset=' + charset : ''));
                 d.raw.pipe(d.res);
             });
         }
