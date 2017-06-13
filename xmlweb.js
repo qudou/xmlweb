@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.0.13
+ * xmlweb.js v1.0.15
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -23,8 +23,9 @@ $_().imports({
                 d.res.setHeader("Content-Type", "text/html");
                 d.res.end("Not Found");
             });
+            const os = require('os').type();
             require("http").createServer((req, res) => {
-                res.setHeader("Server", "Apache/2.2.22 (Ubuntu)");
+                res.setHeader("Server", `xmlweb/1.0.15 ${os}`);
                 first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
             }).listen(opts.listen || 8080);
         }
@@ -322,7 +323,6 @@ $_("static").imports({
             let fs = require("fs"), url = require("url"), path = require("path");
             this.on("enter", async (e, d) => {
                 d.path = path.join(opts.root, url.parse(d.url).pathname);
-                d.ext = (path.extname(d.path) || ".bin").slice(1);
                 let s = await status(d.path);
                 if ( s.err == null ) {
                     s.stat.isFile() ? this.trigger("next", (d.stat = s.stat, d)) : this.trigger("reject", d);
@@ -337,6 +337,27 @@ $_("static").imports({
             }
         }
     },
+    Cache: {
+        fun: function (sys, items, opts) {
+            let etag = require("etag"),
+                fresh = require("fresh");
+            this.on("enter", (e, d) => {
+                d.res.setHeader('ETag', etag(d.stat));
+                d.res.setHeader('Last-Modified', d.stat.mtime.toUTCString());
+                if (!isFresh(d.req, d.res))
+                    return this.trigger("next", d);
+                d.res.statusCode = 304;
+                d.res.setHeader("Content-Type", "text/html");
+                return d.res.end();
+            });
+            function isFresh (req, res) {
+                return fresh(req.headers, {
+                  'etag': res.getHeader('ETag'),
+                  'last-modified': res.getHeader('Last-Modified')
+                });
+            }
+        }
+    },
     Ranges: {
         xml: "<IsRangeFresh id='isRangeFresh' xmlns='ranges'/>",
         fun: function (sys, items, opts) {
@@ -346,7 +367,7 @@ $_("static").imports({
             this.on("enter", (e, d) => {
                 let len = d.stat.size, ranges = d.req.headers.range;
                 d.res.setHeader("Accept-Ranges", "bytes");
-                if ( !regexp.test(ranges) || !items.isRangeFresh(d.res) )
+                if ( !regexp.test(ranges) || !items.isRangeFresh(d.req, d.res) )
                     return this.trigger("next", d);
                 ranges = parseRange(len, ranges, {combine: true});
                 if ( ranges === -1 ) {
@@ -365,43 +386,22 @@ $_("static").imports({
             });
         }
     },
-    Cache: {
-        opt: { maxAge: 24 * 3600 * 365 },
-        fun: function (sys, items, opts) {
-            let types = new Set("gif png jpg js css htm html".split(' '));
-            this.on("enter", (e, d) => {
-                let lastModified = d.stat.mtime.toUTCString();
-                d.res.setHeader("Last-Modified", lastModified);
-                if ( d.req.headers["if-modified-since"] && lastModified == d.req.headers["if-modified-since"] ) {
-                    d.res.statusCode = 304;
-                    d.res.setHeader("Content-Type", "text/html");
-                    return d.res.end();
-                }
-                if ( types.has(d.ext) ) {
-                    let expires = new Date;
-                    expires.setTime(Date.now() + opts.maxAge * 1000);
-                    d.res.setHeader("Expires", expires.toUTCString());
-                }
-                this.trigger("next", d);
-            });
-        }
-    },
     Compress: {
         fun: function (sys, items, opts) {
-            let types = new Set(['css','js','htm','html']),
-                fs = require("fs"), zlib = require("zlib");
+            let types = new Set(['.css','.js','.htm','.html']),
+                fs = require("fs"), zlib = require("zlib"), path = require("path");
             this.on("enter", (e, d) => {
                 d.raw = fs.createReadStream(d.path);
-                if ( !types.has(d.ext) ) {
+                if ( !types.has(path.extname(d.path)) ) {
                     d.res.setHeader("Content-Length", d.stat.size);
                     return this.trigger("next", d);
                 }
                 let encoding = d.req.headers['accept-encoding'] || "";
                 if ( encoding.indexOf("gzip") != -1 ) {
-                    d.compress = zlib.createGzip();
+                    d.raw = d.raw.pipe(zlib.createGzip());
                     d.res.setHeader("Content-Encoding", "gzip");
                 } else if ( encoding.indexOf("deflate") != -1 ) {
-                    d.compress = zlib.createDeflate();
+                    d.raw = d.raw.pipe(zlib.createDeflate());
                     d.res.setHeader("Content-Encoding", "deflate");
                 } else {
                     d.res.setHeader("Content-Length", d.stat.size);
@@ -414,8 +414,12 @@ $_("static").imports({
         fun: function (sys, items, opts) {
             let mime = require("mime");
             this.on("enter", (e, d) => {
-                d.res.setHeader("Content-Type", mime.lookup(d.ext)); 
-                d.compress ? d.raw.pipe(d.compress).pipe(d.res) : d.raw.pipe(d.res);
+                let type = mime.lookup(d.path);
+                if (type) {
+                    let charset = mime.charsets.lookup(type);
+                    d.res.setHeader('Content-Type', type + (charset ? '; charset=' + charset : ''));
+                }
+                d.raw.pipe(d.res);
             });
         }
     },
@@ -434,7 +438,7 @@ $_("static").imports({
 $_("static/ranges").imports({
     IsRangeFresh: {
         fun: function (sys, items, opts) {
-            return (res) => {
+            return (req, res) => {
                 let ifRange = req.headers['if-range'];
                 if (!ifRange) return true;
                 if (ifRange.indexOf('"') !== -1) {
