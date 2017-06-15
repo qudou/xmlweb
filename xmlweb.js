@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.1.18
+ * xmlweb.js v1.1.19
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -24,9 +24,9 @@ $_().imports({
                 d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
                 d.res.end(statuses[d.status] || String(d.status));
             });
-            const os = require('os').type();
+            const SERVER = "xmlweb/" + require('os').type();
             require("http").createServer((req, res) => {
-                res.setHeader("Server", `xmlweb/1.1.18 ${os}`);
+                res.setHeader("Server", SERVER);
                 first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
             }).listen(opts.listen || 8080);
         }
