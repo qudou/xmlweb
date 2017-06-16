@@ -68,6 +68,7 @@ $_().imports({
                 <s:Ranges id='ranges'/>\
                 <s:Compress id='compress'/>\
                 <s:Output id='output'/>\
+                <s:Error id='error'/>\
               </Flow>",
         opt: { root: ".", url: "/*" }, 
         map: { attrs: { status: "root", router: "url" } }
@@ -329,7 +330,7 @@ $_("static").imports({
                 } else if (s.err.code == "ENOENT") {
                     this.trigger("reject", (d.status = 404, d));
                 } else {
-                    this.trigger("reject", (d.status = 500, d));
+                    this.trigger("next", [(d.status = 500, d), "error"]);
                 }
             });
             function status(path) {
@@ -344,15 +345,14 @@ $_("static").imports({
             this.on("enter", (e, d) => {
                 d.res.setHeader('ETag', etag(d.stat));
                 d.res.setHeader('Last-Modified', d.stat.mtime.toUTCString());
+                let data = d;
                 if (isConditionalGET(d.req))
                     if (items.isPreconditionFailure(d.req, d.res)) {
-                        return this.trigger("reject", (d.status = 412, d));
+                        data = [(d.status = 412, d), "error"];
                     } else if (isFresh(d.req, d.res)) {
-                        d.res.statusCode = 304;
-                        d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
-                        return d.res.end("Not Modified");
+                        data = [(d.status = 304, d), "error"];
                     }
-                this.trigger("next", d);
+                this.trigger("next", data);
             });
             function isConditionalGET (req) {
                 return req.headers['if-match'] || req.headers['if-unmodified-since'] || req.headers['if-none-match'] || req.headers['if-modified-since'];
@@ -379,7 +379,7 @@ $_("static").imports({
                 ranges = parseRange(len, ranges, {combine: true});
                 if ( ranges === -1 ) {
                     d.res.setHeader('Content-Range', `bytes */${len}}`);
-                    return this.trigger("reject", (d.status = 416, d));
+                    return this.trigger("next", [(d.status = 416, d), "error"]);
                 }
                 if ( ranges.length === 1 ) {
                     d.res.statusCode = 206;
@@ -424,6 +424,16 @@ $_("static").imports({
                     charset = mime.charsets.lookup(type);
                 d.res.setHeader('Content-Type', type + (charset ? '; charset=' + charset : ''));
                 d.raw.pipe(d.res);
+            });
+        }
+    },
+    Error: {
+        fun: function (sys, items, opts) {
+            let statuses = require("statuses");
+            this.on("enter", (e, d) => {
+                d.res.statusCode = d.status;
+                d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
+                d.res.end(statuses[d.status] || String(d.status));
             });
         }
     }
