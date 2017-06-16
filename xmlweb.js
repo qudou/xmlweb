@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.1.19
+ * xmlweb.js v1.1.20
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -327,7 +327,7 @@ $_("static").imports({
                 if ( s.err == null ) {
                     s.stat.isFile() ? this.trigger("next", (d.stat = s.stat, d)) : this.trigger("reject", (d.status = 404, d));
                 } else if (s.err.code == "ENOENT") {
-                    this.trigger("reject", d);
+                    this.trigger("reject", (d.status = 404, d));
                 } else {
                     this.trigger("reject", (d.status = 500, d));
                 }
