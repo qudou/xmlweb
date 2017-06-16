@@ -30,17 +30,19 @@
     <s:Ranges id='ranges'/>
     <s:Compress id='compress'/>
     <s:Output id='output'/>
+    <s:Error id='error'/>
 </Flow>
 ```
 
 从此视图项可以看出，该状态机组件包含若干个子节点组件，下面是各子节点组件的基本用途：
 
 - Router：过滤掉所有的非 GET 请求
-- Status：获取目录文件的状态属性，如果文件不允许访问，会导致状态机停机
+- Status：获取目录文件的状态属性
 - Catch：文件缓存处理
 - Ranges: 部分资源的范围请求的处理
 - Compress：文件压缩处理
 - Output：响应请求
+- Error: 处理状态码为 304、412、416、500 响应
 
 ## 自定义 404 页面
 
