@@ -20,7 +20,7 @@ $_().imports({
             });
             let statuses = require("statuses");
             this.on("reject", (e, d) => {
-                d.res.statusCode = d.status || 404;
+                d.res.statusCode = d.status = d.status || 501;
                 d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
                 d.res.end(statuses[d.status] || String(d.status));
             });
