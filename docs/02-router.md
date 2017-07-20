@@ -10,7 +10,7 @@
 <!-- 02-01 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/index.html'/>
-    <Response id='response'/>\
+    <Response id='response'/>
 </i:HTTP>
 ```
 
