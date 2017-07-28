@@ -3,7 +3,7 @@ xmlweb("xp", function (xp, $_, t) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
-                    <i:Router url='/:foo\\?bar=:bar'/>\
+                    <i:Router url='/he(l?)lo'/>\
                     <Response id='response'/>\
                   </i:HTTP>"
         },
@@ -12,7 +12,7 @@ xmlweb("xp", function (xp, $_, t) {
             fun: function (sys, items, opts) {
                 this.on("enter", (e, d) => {
                     d.res.setHeader("Content-Type", "text/html");
-                    d.res.end(JSON.stringify(d.args));
+                    d.res.end(this.serialize());
                 });
             }
         }

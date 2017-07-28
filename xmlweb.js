@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.1.22
+ * xmlweb.js v1.1.24
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -75,14 +75,22 @@ $_().imports({
     },
     Router: {
         xml: "<main id='router' xmlns:i='/router'>\
-                <i:URLRouter id='url'/>\
-                <i:MethodRouter id='method'/>\
+                <i:ParseURL id='url'/>\
+                <i:ParseBody id='body'/>\
               </main>",
-        opt: { url: "/", type: "url" },
-        map: { attrs: {url: "url", method: "method"}, defer: "url method" },
+        opt: { url: "/*", method: "GET", usebody: true },
+        map: { attrs: {"url": "url"}, format: {"bool": "usebody"} },
         fun: function (sys, items, opts) {
-            let target = sys[opts.type].show();
-            this.on("enter", (e, d) => target.trigger("enter", (e, d), false));
+            this.on("enter", async (e, d) => {
+                if ( opts.method != '*' && d.req.method != opts.method )
+                    return this.trigger(opts.ifNotMatch ? "next" : "reject", [d, opts.ifNotMatch]);
+                d.args = items.url(d.req.url);
+                if ( d.args == false )
+                    return this.trigger("reject", d);
+                if ( d.req.method == "POST" && opts.usebody )
+                    d.body = await items.body(d.req);
+                this.trigger("next", d);
+            });
         }
     },
     Rewrite: {
@@ -168,29 +176,6 @@ $_("rewrite").imports({
 });
 
 $_("router").imports({
-    URLRouter: {
-        xml: "<ParseURL id='url'/>",
-        opt: { url: "/" },
-        map: { attrs: {"url": "url"} },
-        fun: function (sys, items, opts) {
-            this.on("enter", async (e, d) => {
-                d.args = items.url(d.req.url);
-                if ( d.args == false )
-                    return this.trigger("reject", d);
-                this.trigger("next", d);
-            });
-        }
-    },
-    MethodRouter: {
-        opt: { method: "GET" },
-        fun: function (sys, items, opts) {
-            this.on("enter", (e, d) => {
-                if ( d.req.method == "GET" )
-                    return this.trigger("next", d);
-                this.trigger("next", [d, opts.POST]);
-            });
-        }
-    },
     ParseURL: {
         fun: function (sys, items, opts) {
             let pathRegexp = require("path-to-regexp"),
