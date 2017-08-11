@@ -340,12 +340,16 @@ $_("static").imports({
     },
     Cache: {
         xml: "<IsPreconditionFailure id='isPreconditionFailure' xmlns='conditions'/>",
+        opt: { etag: true, lastModified: true, cacheControl: false, maxAge: 3600 * 24 * 365 },
+        map: { format: { "bool": "etag lastModified cacheControl", "int": "maxAge" } },
         fun: function (sys, items, opts) {
-            let etag = require("etag"), fresh = require("fresh");
+            let etag = require("etag"),
+                fresh = require("fresh");
             this.on("enter", (e, d) => {
-                d.res.setHeader('ETag', etag(d.stat));
-                d.res.setHeader('Last-Modified', d.stat.mtime.toUTCString());
                 let data = d;
+                opts.etag && d.res.setHeader('ETag', etag(d.stat));
+                opts.lastModified && d.res.setHeader('Last-Modified', d.stat.mtime.toUTCString());
+                opts.cacheControl && d.res.setHeader('Cache-Control', `public, max-age=${opts.maxAge}`);
                 if (isConditionalGET(d.req))
                     if (items.isPreconditionFailure(d.req, d.res)) {
                         data = [(d.status = 412, d), "error"];
