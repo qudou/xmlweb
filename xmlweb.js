@@ -64,14 +64,14 @@ $_().imports({
         xml: "<Flow xmlns:s='static'>\
                 <Router id='router'/>\
                 <s:Status id='status'/>\
-                <s:Cache id='catch'/>\
+                <s:Cache id='cache'/>\
                 <s:Ranges id='ranges'/>\
                 <s:Compress id='compress'/>\
                 <s:Output id='output'/>\
                 <s:Error id='error'/>\
               </Flow>",
         opt: { root: ".", url: "/*" }, 
-        map: { attrs: { status: "root", router: "url" } }
+        map: { attrs: { router: "url", status: "root", cache: "etag lastModified cacheControl maxAge" } }
     },
     Router: {
         xml: "<main id='router' xmlns:i='/router'>\
