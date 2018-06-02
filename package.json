@@ -1,6 +1,6 @@
 {
   "name": "xmlweb",
-  "version": "1.1.24",
+  "version": "1.1.25",
   "dependencies": {
     "etag": "^1.8.0",
     "fresh": "^0.5.0",

@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.1.24
+ * xmlweb.js v1.1.25
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -84,7 +84,8 @@ $_().imports({
             this.on("enter", async (e, d) => {
                 if ( opts.method != '*' && d.req.method != opts.method )
                     return this.trigger(opts.ifNotMatch ? "next" : "reject", [d, opts.ifNotMatch]);
-                d.args = items.url(d.req.url);
+                d.url = items.url.decode(d.url);
+                d.args = items.url.parse(d.req.url);
                 if ( d.args == false )
                     return this.trigger("reject", d);
                 if ( d.req.method == "POST" && opts.usebody )
@@ -187,7 +188,7 @@ $_("router").imports({
                 } catch(e) {}
                 return val;
             }
-            return path => {
+            function parse(path) {
                 let res = regexp.exec(path);
                 if (!res) return false;
                 let params = {};
@@ -197,7 +198,8 @@ $_("router").imports({
                         params[key.name] = val;
                 }
                 return params;
-            };
+            }
+            return { decode: decode, parse: parse };
         }
     },
     ParseBody: {
