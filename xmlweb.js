@@ -325,7 +325,7 @@ $_("static").imports({
         fun: function (sys, items, opts) {
             let fs = require("fs"), url = require("url"), path = require("path");
             this.on("enter", async (e, d) => {
-                d.path = path.join(opts.root, url.parse(d.url).pathname);
+                d.path = path.join(opts.root, decodeURIComponent(url.parse(d.url).pathname));
                 let s = await status(d.path);
                 if ( s.err == null ) {
                     s.stat.isFile() ? this.trigger("next", (d.stat = s.stat, d)) : this.trigger("reject", (d.status = 404, d));
