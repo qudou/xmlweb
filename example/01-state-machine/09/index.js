@@ -5,8 +5,7 @@ xmlweb("xp", function (xp, $_, t) {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
                     <i:Router url='/:id.html'/>\
                     <Machine id='machine'/>\
-                    <Hello id='holder'/>\
-                    <Hello id='dynamic' text='dynamic'/>\
+                    <Hello id='hello'/>\
                   </i:HTTP>"
         },
         Machine: {
@@ -17,7 +16,7 @@ xmlweb("xp", function (xp, $_, t) {
         },
         Next: {
             fun: function (sys, items, opts) {
-                this.on("enter", (e, d) => this.trigger("reject", [d, "dynamic"]));
+                this.on("enter", (e, d) => this.trigger("next", d));
             }
         },
         Hello: {

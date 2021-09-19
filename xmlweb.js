@@ -6,14 +6,40 @@
  */
 let xmlplus = require("xmlplus");
 
-xmlplus("xmlweb", (xp, $_, t) => {
+xmlplus("xmlweb", (xp, $_) => {
 
 $_().imports({
     HTTP: {
+        map: {extend: {"from": "Base"}},
+        fun: function (sys, items, opts) {
+            let first = this.first();
+            let SERVER = "xmlweb/" + require('os').type();
+            require("http").createServer((req, res) => {
+                res.setHeader("Server", SERVER);
+                first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
+            }).listen(opts.listen || 8080);
+        }
+    },
+    HTTPS: {
+        map: {extend: {"from": "Base"}},
+        fun: function (sys, items, opts) {
+            let fs = require("fs");
+            let first = this.first();
+            let SERVER = "xmlweb/" + require('os').type();
+            let options = {
+                key: fs.readFileSync(opts.key),
+                cert: fs.readFileSync(opts.cert)
+            };
+            require("https").createServer(options, (req, res) => {
+                res.setHeader("Server", SERVER);
+                first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
+            }).listen(opts.listen || 443);
+        }
+    },
+    Base: {
         map: { format: { "int": "listen" } },
         fun: function (sys, items, opts) {
-            let first = this.first(),
-                table = this.find("./*[@id]").hash();
+            let table = this.find("./*[@id]").hash();
             this.on("next", (e, d, next) => {
                 d.ptr[0] = table[next] || d.ptr[0].next();
                 d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject", d);
@@ -24,11 +50,6 @@ $_().imports({
                 d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
                 d.res.end(statuses[d.status] || String(d.status));
             });
-            const SERVER = "xmlweb/" + require('os').type();
-            require("http").createServer((req, res) => {
-                res.setHeader("Server", SERVER);
-                first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
-            }).listen(opts.listen || 8080);
         }
     },
     Flow: {

@@ -11,12 +11,11 @@ xmlweb("xp", function (xp, $_, t) {
         Machine: {
             xml: "<i:Flow xmlns:i='//xmlweb'>\
                     <Next id='next'/>\
-                    <Hello id='hello' text='hello, alice'/>\
                   </i:Flow>"
         },
         Next: {
             fun: function (sys, items, opts) {
-                this.on("enter", (e, d) => this.trigger("next", d));
+                this.on("enter", (e, d) => this.trigger("reject", d));
             }
         },
         Hello: {

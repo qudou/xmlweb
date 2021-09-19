@@ -4,25 +4,24 @@ xmlweb("xp", function (xp, $_, t) {
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
                     <i:Router url='/:id.html'/>\
-                    <Machine id='machine'/>\
-                    <Hello id='hello'/>\
+                    <Jump id='jump'/>\
+                    <Response id='page1' text='hello'/>\
+                    <Response id='page2' text='world'/>\
                   </i:HTTP>"
         },
-        Machine: {
-            xml: "<i:Flow xmlns:i='//xmlweb'>\
-                    <Next id='next'/>\
-                  </i:Flow>"
-        },
-        Next: {
+        Jump: {
             fun: function (sys, items, opts) {
-                this.on("enter", (e, d) => this.trigger("next", d));
+                this.on("enter", (e, d) => {
+                    let bool = d.args.id == "index";
+                    this.trigger("next", [d, bool ? null: "page2"]);
+                });
             }
         },
-        Hello: {
+        Response: {
             fun: function (sys, items, opts) {
                 this.on("enter", (e, d) => {
                     d.res.setHeader("Content-Type", "text/html");
-                    d.res.end(opts.text || "hello, world");
+                    d.res.end(opts.text);
                 });
             }
         }

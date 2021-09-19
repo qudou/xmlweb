@@ -65,6 +65,16 @@ Hello: {
 
 该示例的组件 Hello 与前面给出的一致。你可以输入地址 `http://localhost/index.html` 来测试此示例。
 
+另外，还有组件 HTTPS，它的使用方式类似于 HTTP。但使用时需要提供私钥以及证书文件路径。
+
+```xml
+<!-- 01-04 -->
+<i:HTTPS listen='80' key='./privatekey.pem' cert='./certificate.pem' xmlns:i='//xmlweb'>
+    <i:Router url='/index.html'/>
+    <Hello id='hello'/>
+</i:HTTPS>
+```
+
 ## 数据流
 
 数据流是一个普通对象，所谓普通对象指的是使用 `{}` 或 `new Object` 创建的对象。数据流由 HTTP 组件对象在接收到用户的请求时生成。在初始状态，它主要包含了如下的内容：
@@ -79,7 +89,7 @@ Hello: {
 默认情况下，状态机的数据流由事件 `next` 驱动并从上往下流动，这是将状态机组件取名为 Flow 的直接原因。如下面的示例所示：
 
 ```xml
-<!-- 01-04 -->
+<!-- 01-05 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/:id.html'/>
     <Creater id='creater'/>
@@ -90,7 +100,7 @@ Hello: {
 此 web 服务接收所有的具有 URL 模式 `/:id.html` 的 GET 请求。当有匹配的请求时，数据流先进入 Router 组件节点。在 Router 组件节点完成 URL 解码后会派发事件 `next`，然后数据流进入 Creater 组件节点。在 Creater 组件节点完成数据的相关处理后派发事件 `next`，于是数据流最终达到 Static 组件节点。为了清楚地认识这个过程，我们来看看组件 Creater 的具体构造。
 
 ```js
-// 01-04
+// 01-05
 Creater: {
     xml: "<h1 id='creater'/>",
     fun: function (sys, items, opts) {
@@ -111,7 +121,7 @@ Creater: {
 相对于默认的垂直数据流的单向流动，状态机允许在任一时刻跳转到任意的已命名的组件节点，下面我们通过一个示例来说明：
 
 ```xml
-<!-- 01-05 -->
+<!-- 01-06 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/:id.html'/>
     <Jump id='jump'/>
@@ -123,7 +133,7 @@ Creater: {
 该状态机包含一个 Jump 节点组件，此节点用于过滤 `id` 值为 `index` 的请求，也就是 url 为 `/index.html` 的请求。对于这种请求，数据流将不再进入组件节点 `page1`，而是直接进入组件节点 `page2`。下面给出组件 Jump 的具体实现：
 
 ```js
-// 01-05
+// 01-06
 Jump: {
     fun: function (sys, items, opts) {
         this.on("enter", (e, d) => {
@@ -145,7 +155,7 @@ Jump: {
 在 xmlweb 中，状态机的停机指的是结束当前的状态机数据的流动，返回到上一层状态机。状态机的停机有两种情况，一种是由事件 `next` 导致的停机，请看下面的一个示例：
 
 ```xml
-<!-- 01-06 -->
+<!-- 01-07 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/:id.html'/>
     <Machine id='machine'/>
@@ -156,7 +166,7 @@ Jump: {
 该示例中，组件 Machine 是一个由组件 Flow 定义的子状态机组件，下面是它的视图项部分：
 
 ```xml
-<!-- 01-06 -->
+<!-- 01-07 -->
 <i:Flow xmlns:i='//xmlweb'>
     <Next id='next'/>
 </i:Flow>
@@ -165,7 +175,7 @@ Jump: {
 其中的 Next 组件的具体内容如下所示：
 
 ```js
-// 01-06
+// 01-07
 Next: {
     fun: function (sys, items, opts) {
         this.on("enter", (e, d) => this.trigger("next", d));
@@ -180,7 +190,7 @@ Next: {
 另一种停机由事件 `reject` 触发，该事件的派发将直接导致状态机停机，现修改上面的组件 Next 如下：
 
 ```js
-// 01-07
+// 01-08
 Next: {
     fun: function (sys, items, opts) {
         this.on("enter", (e, d) => this.trigger("reject", d));
@@ -191,7 +201,7 @@ Next: {
 在示例中，该组件与上述的由事件 `next` 导致的停机效果是一样的，但如果子状态机是下面这样子：
 
 ```xml
-<!-- 01-08 -->
+<!-- 01-09 -->
 <i:Flow xmlns:i='//xmlweb'>
     <Next id='next'/>
     <Hello id='hello' text='hello, alice'/>
@@ -205,7 +215,7 @@ Next: {
 如前所述，当前状态机停机后，数据流将返回上一层级的状态机。如果不给派发事件的系统函数 `trigger` 提供目的节点名，那么数据流将试图跳转到当前状态机节点的后继节点。否则，数据流会试图跳转到上层状态机的同名节点。请看下面的示例：
 
 ```js
-// 01-09
+// 01-10
 Next: {
     fun: function (sys, items, opts) {
         this.on("enter", (e, d) => this.trigger("reject", [d, "dynamic"]));
@@ -222,7 +232,7 @@ Next: {
 前面说过，组件 HTTP 是一个比较特殊的状态机节点组件，它只能作为的顶层节点组件使用。如果在 HTTP 节点捕获到停机事件，那么 HTTP 节点将返回 xmlweb 返回内置的 404 页面。下面的一个简单的示例演示了这一点：
 
 ```xml
-<!-- 01-10 -->
+<!-- 01-11 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <Hello id='hello'/>
 </i:HTTP>
@@ -231,7 +241,7 @@ Next: {
 组件 Hello 的定义如下：
 
 ```js
-// 01-10
+// 01-11
 Hello: {
     fun: function (sys, items, opts) {
         this.on("enter", (e, d) => this.trigger("reject", d));
