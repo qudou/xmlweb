@@ -37,4 +37,4 @@ xmlweb("xp", function (xp, $_, t) {
 }).startup("//xp/Index");
 ```
 
-Visit [http://xmlplus.cn/xmlweb](http://xmlplus.cn/xmlweb) for more information.
+Visit [https://xmlplus.cn/xmlweb](https://xmlplus.cn/xmlweb) for more information.

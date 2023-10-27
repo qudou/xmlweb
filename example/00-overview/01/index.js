@@ -1,5 +1,5 @@
 let xmlweb = require("xmlweb");
-xmlweb("xp", function (xp, $_, t) {
+xmlweb("xp", function (xp, $_) {
     $_().imports({
         Index: {
             xml: "<i:Http listen='81' xmlns:i='//xmlweb'>\

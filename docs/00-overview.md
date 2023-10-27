@@ -34,7 +34,7 @@ xmlplus/
 ```js
 // 00-01
 let xmlweb = require("xmlweb");
-xmlweb("xp", function (xp, $_, t) {
+xmlweb("xp", function (xp, $_) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\

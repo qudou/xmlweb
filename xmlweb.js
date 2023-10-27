@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.1.25
+ * xmlweb.js v1.1.28
  * https://github.com/qudou/xmlweb
  * (c) 2009-2017 qudou
  * Released under the MIT license
@@ -14,10 +14,11 @@ $_().imports({
         fun: function (sys, items, opts) {
             let first = this.first();
             let SERVER = "xmlweb/" + require('os').type();
+			let listen = parseInt(opts.listen || 8080);
             require("http").createServer((req, res) => {
                 res.setHeader("Server", SERVER);
                 first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
-            }).listen(opts.listen || 8080);
+            }).listen(listen);
         }
     },
     HTTPS: {
@@ -26,6 +27,7 @@ $_().imports({
             let fs = require("fs");
             let first = this.first();
             let SERVER = "xmlweb/" + require('os').type();
+			let listen = parseInt(opts.listen || 443);
             let options = {
                 key: fs.readFileSync(opts.key),
                 cert: fs.readFileSync(opts.cert)
@@ -33,11 +35,10 @@ $_().imports({
             require("https").createServer(options, (req, res) => {
                 res.setHeader("Server", SERVER);
                 first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
-            }).listen(opts.listen || 443);
+            }).listen(listen);
         }
     },
     Base: {
-        map: { format: { "int": "listen" } },
         fun: function (sys, items, opts) {
             let table = this.find("./*[@id]").hash();
             this.on("next", (e, d, next) => {
@@ -99,8 +100,8 @@ $_().imports({
                 <i:ParseURL id='url'/>\
                 <i:ParseBody id='body'/>\
               </main>",
-        opt: { url: "/*", method: "GET", usebody: true },
-        map: { attrs: {"url": "url"}, format: {"bool": "usebody"} },
+        opt: { url: "/*", method: "GET", usebody: "true" },
+        map: { attrs: {"url": "url"} },
         fun: function (sys, items, opts) {
             this.on("enter", async (e, d) => {
                 if ( opts.method != '*' && d.req.method != opts.method )
@@ -109,7 +110,7 @@ $_().imports({
                 d.args = items.url.parse(d.req.url);
                 if ( d.args == false )
                     return this.trigger("reject", d);
-                if ( d.req.method == "POST" && opts.usebody )
+                if ( d.req.method == "POST" && opts.usebody == "true" )
                     d.body = await items.body(d.req);
                 this.trigger("next", d);
             });
@@ -280,7 +281,6 @@ $_("session").imports({
     },
     Manager: {
         xml: "<Storage id='storage'/>",
-        map: { format: { "int": "interval maxAge" } },
         opt: { interval: 60 * 1000, maxAge: 24 * 3600 * 1000 },
         fun: function (sys, items, opts) {
             let table = {}, uid = require('uid-safe').sync;
@@ -303,7 +303,7 @@ $_("session").imports({
             setInterval(() => {
                 let key, keyMap = [], now = Date.now();
                 for ( key in table )
-                    if (now - table[key].createtime > opts.maxAge )
+                    if (now - table[key].createtime > parseInt(opts.maxAge) )
                         keyMap.push(key);
                 keyMap.forEach(destroy);
             }, opts.interval);
@@ -364,15 +364,14 @@ $_("static").imports({
     Cache: {
         xml: "<IsPreconditionFailure id='isPreconditionFailure' xmlns='conditions'/>",
         opt: { etag: true, lastModified: true, cacheControl: false, maxAge: 3600 * 24 * 365 },
-        map: { format: { "bool": "etag lastModified cacheControl", "int": "maxAge" } },
         fun: function (sys, items, opts) {
-            let etag = require("etag"),
-                fresh = require("fresh");
+            let etag = require("etag");
+            let fresh = require("fresh");
             this.on("enter", (e, d) => {
                 let data = d;
-                opts.etag && d.res.setHeader('ETag', etag(d.stat));
-                opts.lastModified && d.res.setHeader('Last-Modified', d.stat.mtime.toUTCString());
-                opts.cacheControl && d.res.setHeader('Cache-Control', `public, max-age=${opts.maxAge}`);
+                opts.etag === "false" || d.res.setHeader('ETag', etag(d.stat));
+                opts.lastModified === "false" || d.res.setHeader('Last-Modified', d.stat.mtime.toUTCString());
+                opts.cacheControl === "false" || d.res.setHeader('Cache-Control', `public, max-age=${opts.maxAge}`);
                 if (isConditionalGET(d.req))
                     if (items.isPreconditionFailure(d.req, d.res)) {
                         data = [(d.status = 412, d), "error"];
