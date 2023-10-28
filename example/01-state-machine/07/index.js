@@ -1,40 +1,28 @@
 let xmlweb = require("xmlweb");
-xmlweb("xp", function (xp, $_) {
+xmlweb("xp", function (xp, $_, t) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
                     <i:Router url='/:id.html'/>\
-                    <Middle id='middle'/>\
+                    <Machine id='machine'/>\
                     <Hello id='hello'/>\
                   </i:HTTP>"
         },
-        Middle: {
-            xml: "<i:Falls xmlns:i='//xmlweb'>\
-                    <Alice id='alice'/>\
-                    <Bob id='bob'/>\
-                  </i:Falls>"
+        Machine: {
+            xml: "<i:Flow xmlns:i='//xmlweb'>\
+                    <Next id='next'/>\
+                  </i:Flow>"
         },
-        Alice: {
+        Next: {
             fun: function (sys, items, opts) {
-                this.on("enter", (e, d) => {
-					console.log("alice");
-					e.stopPropagation()
-					this.trigger("continue", d);
-				});
-            }
-        },
-        Bob: {
-            fun: function (sys, items, opts) {
-                this.on("enter", (e, d) => {
-					console.log("bob");
-				});
+                this.on("enter", (e, d) => this.trigger("next", d));
             }
         },
         Hello: {
             fun: function (sys, items, opts) {
                 this.on("enter", (e, d) => {
                     d.res.setHeader("Content-Type", "text/html");
-                    d.res.end("hello, world");
+                    d.res.end(opts.text || "hello, world");
                 });
             }
         }

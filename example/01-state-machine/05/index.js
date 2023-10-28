@@ -1,22 +1,21 @@
 let xmlweb = require("xmlweb");
-xmlweb("xp", function (xp, $_) {
+xmlweb("xp", function (xp, $_, t) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
                     <i:Router id='router' url='/:id.html'/>\
-                    <Middle id='middle'/>\
+                    <Creater id='creater'/>\
                     <i:Static id='static' root='static'/>\
                   </i:HTTP>"
         },
-        Middle: {
-            xml: "<main id='middle'>\
-			         <h1 id='label'/>\
-				  </main>",
+        Creater: {
+            xml: "<h1 id='creater'/>",
             fun: function (sys, items, opts) {
                 let fs = require("fs");
                 this.on("enter", (e, d) => {
-                    sys.label.text("hello, " + d.args.id);
-                    fs.writeFileSync("static" + d.req.url, sys.label.serialize(), "utf8");
+                    sys.creater.text("hello, " + d.args.id);
+                    fs.writeFileSync("static" + d.req.url, this.serialize(), "utf8");
+                    this.trigger("next", d);
                 });
             }
         }

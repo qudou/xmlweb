@@ -1,6 +1,6 @@
 # 概述
 
-xmlweb 是一个 web 服务器框架，使用它可以设计出高可读性、高可维护性的 web 服务应用。另外，xmlweb 基于 xmlplus 实现，你可以自由地使用 xmlplus 特性来高效地完成开发任务。当然，在阅读本文档之前，请确保你已经熟练使用 [xmlplus](http://xmlplus.cn) 框架。
+xmlweb 是一个基于状态机理论设计的 web 服务器，使用它可以设计出高可读性、高可维护性的 web 服务应用。另外，xmlweb 基于 xmlplus 实现，你可以自由地使用 xmlplus 特性来高效地完成开发任务。当然，在阅读本文档之前，请确保你已经熟练使用 [xmlplus](http://xmlplus.cn) 框架。
 
 ## 安装
 
@@ -53,7 +53,7 @@ xmlweb("xp", function (xp, $_) {
 在测试此示例之前，你需要在代码文件所在的当前目录创建一个名为 `static` 的子目录作为静态 web 服务器的根目录，并且在根目录下创建一个简单的 HTML 文件，假设该文件的名称为 `index.html`。那么，你可以在浏览器中输入如下的 URL 来访问刚才创建的文件。
 
 ```
-http://localhost/index.html
+http://localhost:8080/index.html
 ```
 
 除了这个地址外，任何的其它的输入都会返回一个内置的简单的 `404` 页面。

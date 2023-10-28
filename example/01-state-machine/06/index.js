@@ -1,5 +1,5 @@
 let xmlweb = require("xmlweb");
-xmlweb("xp", function (xp, $_) {
+xmlweb("xp", function (xp, $_, t) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
@@ -12,17 +12,14 @@ xmlweb("xp", function (xp, $_) {
         Jump: {
             fun: function (sys, items, opts) {
                 this.on("enter", (e, d) => {
-                    if (d.args.id == "index") {
-						e.stopPropagation();
-						this.trigger("goto", [d, "page2"]);
-					}
+                    let bool = d.args.id == "index";
+                    this.trigger("next", [d, bool ? null: "page2"]);
                 });
             }
         },
         Response: {
             fun: function (sys, items, opts) {
                 this.on("enter", (e, d) => {
-					e.stopPropagation();
                     d.res.setHeader("Content-Type", "text/html");
                     d.res.end(opts.text);
                 });

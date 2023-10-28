@@ -77,4 +77,4 @@ Rewrite: {
 </i:HTTP>
 ```
 
-此示例的组件 Response 与前面给出的一致。你可以在浏览器中输入地址 `http://localhost/` 与地址 `http://localhost/index` 分别测试两种不同的情况。
+此示例的组件 Response 与前面给出的一致。你可以在浏览器中输入地址 `http://localhost:8080` 与地址 `http://localhost:8080/index` 分别测试两种不同的情况。

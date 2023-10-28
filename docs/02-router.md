@@ -1,10 +1,10 @@
 # 路由
 
-路由组件 Router 是 xmlweb 内置的最重要的组件之一，它可根据请求类型与 URL 模式串引导数据流的走向。它通常作为状态机节点的第一个子节点使用。
+路由组件 Router 是 xmlweb 内置的最重要的组件之一，它可根据请求类型与 URL 模式串引导状态机数据流的走向。它通常作为状态机节点的第一个子节点使用。
 
 ## 请求类型
 
-路由组件 Router 有一静态参数 `mothod` 用于指明接受的是 GET 请求还是 POST 请求。其中，默认的请求方式是 GET。如下示例所示，该 web 服务接收任意路径的 GET 请求。
+路由组件 Router 有一静态参数 `mothod` 用于指明接受的是 GET 请求还是 POST 请求。其中，默认的请求方式是 GET。如下面的示例所示，该 web 服务接收任意路径的 GET 请求。
 
 ```xml
 <!-- 02-01 -->
@@ -39,7 +39,7 @@ function (sys, items, opts) {
 为了避免由于跨域请求所带来的问题，你可以使用如下的 `curl` 命令来完成 POST 请求的测试。当然，要测试 GET 请求所返回的结果，只需要把上面命令行的 POST 该为 GET 即可。
 
 ```bash
-$ curl -X POST http://localhost
+$ curl -X POST http://localhost:8080
 ```
 
 如果你希望接收任意的 GET 或者 POST 请求，可以指定 method 的值为 '*'，如下面的示例所示：
@@ -139,7 +139,7 @@ function (sys, items, opts) {
 </i:HTTP>
 ```
 
-该示例的 Response 组件的函数项的与前面的一致。运行这个示例，如果输入的 url 是 `http://localhost/alice?bar=bob`，那么你将会看到与前一个示例一样的输出：
+该示例的 Response 组件的函数项的与前面的一致。运行这个示例，如果输入的 url 是 `http://localhost:81/alice?bar=bob`，那么你将会看到与前一个示例一样的输出：
 
 ```json
 { "foo": "alice", "bar": "bob" }
@@ -174,7 +174,7 @@ function (sys, items, opts) {
 为了避免由于跨域请求所带来的问题，你可以使用如下的 `curl` 命令来完成 POST 请求的测试：
 
 ```bash
-$ curl -H "Content-type: application/json" -X POST -d '{"key":"2017"}' http://localhost/
+$ curl -H "Content-type: application/json" -X POST -d '{"key":"2017"}' http://localhost:8080
 ```
 
 仔细观察，该命令添加了一个请求头 `Content-type: application/json`，这样后台会试图将目标数据解析为 JSON 组件对象。
