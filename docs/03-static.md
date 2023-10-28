@@ -13,7 +13,7 @@
 </i:HTTP>
 ```
 
-该静态 web 服务器侦听 8080 端口，并以代码所在的文件目录为工作目录。当然，你最好给它设置一个独立的工作目录。该示例尽管简单，但它可以正常工作，下面是一些可以提供的静态接口属性：
+该静态 web 服务器侦听 80 端口，并以代码所在的文件目录为工作目录。当然，你最好给它设置一个独立的工作目录。该示例尽管简单，但它可以正常工作，下面是一些可以提供的静态接口属性：
 
 - `url`: `String` 描述了允许接受的请求路径集，默认为 `/*`
 - `root`：`String` 工作目录，默认为代码所在的文件目录
@@ -23,7 +23,7 @@
 为了更好的使用该组件，对 Static 组件的内部做些了解是很有必要的。组件 Static 实质上是一个状态机组件，下面是此组件的视图项：
 
 ```xml
-<Flow xmlns:s='static'>
+<Falls xmlns:s='static'>
     <Router id='router'/>
     <s:Status id='status'/>
     <s:Cache id='catch'/>
@@ -31,7 +31,7 @@
     <s:Compress id='compress'/>
     <s:Output id='output'/>
     <s:Error id='error'/>
-</Flow>
+</Falls>
 ```
 
 从此视图项可以看出，该状态机组件包含若干个子节点组件，下面是各子节点组件的基本用途：
@@ -46,12 +46,14 @@
 
 ## 自定义 404 页面
 
-Static 组件节点对不存在的 URL 请求会导致停机，从而将后续处理交给 HTTP 组件节点，而 HTTP 组件节点的处理方式是返回一个简单的 404 页面。我们如果想返回不一样的 404 页面，那么可以自己定义一个组件节点并将其作为 Static 组件节点的后继。如下面的示例所示：
+Static 组件节点对不存在的 URL 请求会导致停机，从而将后续处理交给 HTTP 组件节点，而 HTTP 组件节点的处理方式是返回一个简单的 404 页面。
+
+如果我们想返回不一样的 404 页面，那么可以自己定义一个组件节点并将其作为 Static 组件节点的后继，同时在 Static 组件中指明静态参数 customError 为 true。如下面的示例所示：
 
 ```xml
 <!-- 03-02 -->
 <i:HTTP xmlns:i='//xmlweb'>
-    <i:Static id='static'/>
+    <i:Static id='static' customError='true'/>
     <NotFound id='notfound'/>
 </i:HTTP>
 ```

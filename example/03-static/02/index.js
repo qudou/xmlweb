@@ -3,7 +3,7 @@ xmlweb("xp", function (xp, $_, t) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
-                    <i:Static id='static'/>\
+                    <i:Static id='static' customError='true'/>\
                     <NotFound id='notfound'/>\
                   </i:HTTP>",
             cfg: { "static": {mime: {mp3: "audio/mpeg"}} }

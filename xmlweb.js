@@ -42,6 +42,7 @@ $_().imports({
         fun: function (sys, items, opts) {
             let statuses = require("statuses");
             this.on("reject", (e, d) => {
+				e.stopPropagation();
                 d.res.statusCode = d.status = d.status || 501;
                 d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
                 d.res.end(statuses[d.status] || String(d.status));
@@ -92,7 +93,13 @@ $_().imports({
                 <s:Error id='error'/>\
               </Falls>",
         opt: { root: ".", url: "/*" }, 
-        map: { attrs: { router: "url", status: "root", cache: "etag lastModified cacheControl maxAge" } }
+        map: { attrs: { router: "url", status: "root", cache: "etag lastModified cacheControl maxAge" } },
+		fun: function (sys, items, opts) {
+			opts.customError && this.on("reject", (e, d) => {
+				e.stopPropagation();
+				this.trigger("continue", d);
+			});
+		}
     },
     Router: {
         xml: "<main id='router' xmlns:i='/router'>\

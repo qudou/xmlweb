@@ -1,6 +1,6 @@
 let xmlweb = require("xmlweb");
 
-xmlweb("xmlweb", function (xp, $_, t) {
+xmlweb("xmlweb", function (xp, $_) {
     $_("session").imports({
         Storage: {
             xml: "<Sqlite id='db'/>",

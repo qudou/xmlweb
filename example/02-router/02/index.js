@@ -1,5 +1,5 @@
-// get test: curl -X GET http://localhost:8080
-// post test: curl -X POST http://localhost:8080
+// get test: curl -X GET http://localhost/
+// post test: curl -X POST http://localhost/
 
 let xmlweb = require("xmlweb");
 xmlweb("xp", function (xp, $_) {
