@@ -13,7 +13,7 @@ $_().imports({
         map: {extend: {"from": "Base"}},
         fun: function (sys, items, opts) {
             let SERVER = "xmlweb/" + require('os').type();
-			let listen = parseInt(opts.listen || 80);
+            let listen = parseInt(opts.listen || 80);
             require("http").createServer((req, res) => {
                 res.setHeader("Server", SERVER);
                 this.trigger("enter", {url: req.url, req:req, res:res}, false);
@@ -26,7 +26,7 @@ $_().imports({
             let fs = require("fs");
             let first = this.first();
             let SERVER = "xmlweb/" + require('os').type();
-			let listen = parseInt(opts.listen || 443);
+            let listen = parseInt(opts.listen || 443);
             let options = {
                 key: fs.readFileSync(opts.key),
                 cert: fs.readFileSync(opts.cert)
@@ -38,11 +38,11 @@ $_().imports({
         }
     },
     Base: {
-		map: {extend: {"from": "Falls"}},
+        map: {extend: {"from": "Falls"}},
         fun: function (sys, items, opts) {
             let statuses = require("statuses");
             this.on("reject", (e, d) => {
-				e.stopPropagation();
+                e.stopPropagation();
                 d.res.statusCode = d.status = d.status || 501;
                 d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
                 d.res.end(statuses[d.status] || String(d.status));
@@ -51,20 +51,20 @@ $_().imports({
     },
     Falls: {
         xml: "<main id='falls'>\
-		        <span id='guard'/>\
-		      </main>",
-		map: { appendTo: "guard" },
+                <span id='guard'/>\
+              </main>",
+        map: { appendTo: "guard" },
         fun: function (sys, items, opts) {
-			let first = this.first();
+            let first = this.first();
             let table = this.find("./*[@id]").hash();
-			let kids = this.kids();
+            let kids = this.kids();
             for (i = kids.length-2; i >= 0; i--)
                 kids[i+1].append(kids[i]);
             this.on("enter", (e, d) => {
-				if (e.target !== sys.falls) {
-					e.stopPropagation();
+                if (e.target !== sys.falls) {
+                    e.stopPropagation();
                     first.trigger("enter", d);
-				}
+                }
             });
             this.on("goto", (e, d, to) => {
                 e.stopPropagation();
@@ -76,9 +76,9 @@ $_().imports({
                 e.stopPropagation();
                 sys.falls.trigger("enter", d);
             });
-			sys.guard.on("enter", (e, d) => {
-				e.stopPropagation();
-			});
+            sys.guard.on("enter", (e, d) => {
+                e.stopPropagation();
+            });
         }
     },
     Static: {
@@ -94,12 +94,12 @@ $_().imports({
               </Falls>",
         opt: { root: ".", url: "/*" }, 
         map: { attrs: { router: "url", status: "root", cache: "etag lastModified cacheControl maxAge" } },
-		fun: function (sys, items, opts) {
-			opts.customError && this.on("reject", (e, d) => {
-				e.stopPropagation();
-				this.trigger("continue", d);
-			});
-		}
+        fun: function (sys, items, opts) {
+            opts.customError && this.on("reject", (e, d) => {
+                e.stopPropagation();
+                this.trigger("continue", d);
+            });
+        }
     },
     Router: {
         xml: "<main id='router' xmlns:i='/router'>\
@@ -110,8 +110,8 @@ $_().imports({
         map: { attrs: {"url": "url"} },
         fun: function (sys, items, opts) {
             this.on("enter", async (e, d) => {
-				if (e.target == sys.router) return;
-				e.stopPropagation();
+                if (e.target == sys.router) return;
+                e.stopPropagation();
                 if (opts.method != '*' && d.req.method != opts.method)
                     return opts.ifNotMatch || this.trigger("reject", d);
                 d.url = items.url.decode(d.url);
@@ -120,7 +120,7 @@ $_().imports({
                     return this.trigger("reject", d);
                 if (d.req.method == "POST" && opts.usebody == "true")
                     d.body = await items.body(d.req);
-				sys.router.trigger("enter", d);
+                sys.router.trigger("enter", d);
             });
         }
     },
@@ -349,12 +349,12 @@ $_("session").imports({
 
 $_("static").imports({
     Status: {
-		xml: "<main id='status'/>",
+        xml: "<main id='status'/>",
         fun: function (sys, items, opts) {
             let fs = require("fs"), url = require("url"), path = require("path");
             this.on("enter", async (e, d) => {
-				if (e.target == sys.status) return;
-				e.stopPropagation();
+                if (e.target == sys.status) return;
+                e.stopPropagation();
                 d.path = path.join(opts.root, decodeURIComponent(url.parse(d.url).pathname));
                 let s = await status(d.path);
                 if (s.err == null) {
@@ -362,8 +362,8 @@ $_("static").imports({
                 } else if (s.err.code == "ENOENT") {
                     this.trigger("reject", (d.status = 404, d));
                 } else {
-					d.status = 500;
-					this.trigger("goto", [d, "error"]);
+                    d.status = 500;
+                    this.trigger("goto", [d, "error"]);
                 }
             });
             function status(path) {
@@ -388,10 +388,10 @@ $_("static").imports({
                     } else if (isFresh(d.req, d.res)) {
                         data = [(d.status = 304, d), "error"];
                     }
-				if (data.length) {
-					e.stopPropagation();
-					this.trigger("goto", data);
-				}
+                if (data.length) {
+                    e.stopPropagation();
+                    this.trigger("goto", data);
+                }
             });
             function isConditionalGET (req) {
                 return req.headers['if-match'] || req.headers['if-unmodified-since'] || req.headers['if-none-match'] || req.headers['if-modified-since'];
@@ -418,7 +418,7 @@ $_("static").imports({
                 ranges = parseRange(len, ranges, {combine: true});
                 if (ranges === -1) {
                     d.res.setHeader('Content-Range', `bytes */${len}}`);
-					e.stopPropagation();
+                    e.stopPropagation();
                     return this.trigger("goto", [(d.status = 416, d), "error"]);
                 }
                 if (ranges.length === 1) {
@@ -426,7 +426,7 @@ $_("static").imports({
                     d.res.setHeader('Content-Range', `bytes ${ranges[0].start + '-' + ranges[0].end + '/' + len}`);
                     d.res.setHeader('Content-Length', ranges[0].end - ranges[0].start + 1);
                     d.raw = fs.createReadStream(d.path, {start: ranges[0].start, end: ranges[0].end});
-					e.stopPropagation();
+                    e.stopPropagation();
                     return this.trigger("goto", [d, "output"]);
                 }
             });
@@ -459,7 +459,7 @@ $_("static").imports({
         fun: function (sys, items, opts) {
             let mime = require("mime");
             this.on("enter", (e, d) => {
-				e.stopPropagation();
+                e.stopPropagation();
                 let type = mime.lookup(d.path),
                     charset = mime.charsets.lookup(type);
                 d.res.setHeader('Content-Type', type + (charset ? '; charset=' + charset : ''));
