@@ -2,7 +2,7 @@
 // post test: curl -X POST http://localhost:8080
 
 let xmlweb = require("xmlweb");
-xmlweb("xp", function (xp, $_, t) {
+xmlweb("xp", function (xp, $_) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\

@@ -1,8 +1,8 @@
 let xmlweb = require("xmlweb");
-xmlweb("xp", function (xp, $_, t) {
+xmlweb("xp", function (xp, $_) {
     $_().imports({
         Index: {
-            xml: "<i:HTTPS listen='8082' xmlns:i='//xmlweb'>\
+            xml: "<i:HTTPS key='./privatekey.pem' cert='./certificate.pem' xmlns:i='//xmlweb'>\
                     <i:Router url='/index.html'/>\
                     <Hello id='hello'/>\
                   </i:HTTPS>"

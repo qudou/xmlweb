@@ -1,7 +1,7 @@
 ﻿/*!
- * xmlweb.js v1.1.28
+ * xmlweb.js
  * https://github.com/qudou/xmlweb
- * (c) 2009-2017 qudou
+ * (c) 2009-2099 qudou
  * Released under the MIT license
  */
 let xmlplus = require("xmlplus");
@@ -12,12 +12,11 @@ $_().imports({
     HTTP: {
         map: {extend: {"from": "Base"}},
         fun: function (sys, items, opts) {
-            let first = this.first();
             let SERVER = "xmlweb/" + require('os').type();
-			let listen = parseInt(opts.listen || 8080);
+			let listen = parseInt(opts.listen || 80);
             require("http").createServer((req, res) => {
                 res.setHeader("Server", SERVER);
-                first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
+                this.trigger("enter", {url: req.url, req:req, res:res}, false);
             }).listen(listen);
         }
     },
@@ -34,17 +33,13 @@ $_().imports({
             };
             require("https").createServer(options, (req, res) => {
                 res.setHeader("Server", SERVER);
-                first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
+                first.trigger("enter", {url: req.url, req:req, res:res}, false);
             }).listen(listen);
         }
     },
     Base: {
+		map: {extend: {"from": "Falls"}},
         fun: function (sys, items, opts) {
-            let table = this.find("./*[@id]").hash();
-            this.on("next", (e, d, next) => {
-                d.ptr[0] = table[next] || d.ptr[0].next();
-                d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject", d);
-            });
             let statuses = require("statuses");
             this.on("reject", (e, d) => {
                 d.res.statusCode = d.status = d.status || 501;
@@ -53,37 +48,41 @@ $_().imports({
             });
         }
     },
-    Flow: {
-        xml: "<main id='flow'/>",
+    Falls: {
+        xml: "<main id='falls'>\
+		        <span id='guard'/>\
+		      </main>",
+		map: { appendTo: "guard" },
         fun: function (sys, items, opts) {
-            let first = this.first(),
-                table = this.find("./*[@id]").hash();
-            this.on("enter", (e, d, next) => {
-                d.ptr.unshift(first);
-                first.trigger("enter", d, false);
+			let first = this.first();
+            let table = this.find("./*[@id]").hash();
+			let kids = this.kids();
+            for (i = kids.length-2; i >= 0; i--)
+                kids[i+1].append(kids[i]);
+            this.on("enter", (e, d) => {
+				if (e.target !== sys.falls) {
+					e.stopPropagation();
+                    first.trigger("enter", d);
+				}
             });
-            this.on("next", (e, d, next) => {
-                if ( e.target == sys.flow ) return;
+            this.on("goto", (e, d, to) => {
                 e.stopPropagation();
-                if ( next == null ) {
-                    d.ptr[0] = d.ptr[0].next();
-                    d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject", [d, next]);
-                } else if ( table[next] ) {
-                    (d.ptr[0] = table[next]).trigger("enter", d, false);
-                } else {
-                    this.trigger("reject", [d, next]);
-                }
+                if (!table[to])
+                    throw Error(`Target [${to}] not found`);
+                table[to].trigger("enter", d);
             });
-            this.on("reject", (e, d, next) => {
-                d.ptr.shift();
+            this.on("continue", (e, d) => {
                 e.stopPropagation();
-                sys.flow.trigger("next", [d, next]);
+                sys.falls.trigger("enter", d);
             });
+			sys.guard.on("enter", (e, d) => {
+				e.stopPropagation();
+			});
         }
     },
     Static: {
         cfg: { router: {method: "GET", usebody: false} },
-        xml: "<Flow xmlns:s='static'>\
+        xml: "<Falls xmlns:s='static'>\
                 <Router id='router'/>\
                 <s:Status id='status'/>\
                 <s:Cache id='cache'/>\
@@ -91,7 +90,7 @@ $_().imports({
                 <s:Compress id='compress'/>\
                 <s:Output id='output'/>\
                 <s:Error id='error'/>\
-              </Flow>",
+              </Falls>",
         opt: { root: ".", url: "/*" }, 
         map: { attrs: { router: "url", status: "root", cache: "etag lastModified cacheControl maxAge" } }
     },
@@ -104,15 +103,17 @@ $_().imports({
         map: { attrs: {"url": "url"} },
         fun: function (sys, items, opts) {
             this.on("enter", async (e, d) => {
-                if ( opts.method != '*' && d.req.method != opts.method )
-                    return this.trigger(opts.ifNotMatch ? "next" : "reject", [d, opts.ifNotMatch]);
+				if (e.target == sys.router) return;
+				e.stopPropagation();
+                if (opts.method != '*' && d.req.method != opts.method)
+                    return opts.ifNotMatch || this.trigger("reject", d);
                 d.url = items.url.decode(d.url);
                 d.args = items.url.parse(d.req.url);
-                if ( d.args == false )
+                if (d.args == false)
                     return this.trigger("reject", d);
-                if ( d.req.method == "POST" && opts.usebody == "true" )
+                if (d.req.method == "POST" && opts.usebody == "true")
                     d.body = await items.body(d.req);
-                this.trigger("next", d);
+				sys.router.trigger("enter", d);
             });
         }
     },
@@ -145,11 +146,10 @@ $_().imports({
             this.on("enter", (e, d) => {
                 d.cookies = items.cookie.parse(d.req.headers.cookie);
                 d.session = items.manager.has(d.cookies.ssid);
-                if ( !d.session ) {
+                if (!d.session) {
                     d.session = items.manager.generate();
                     d.res.setHeader("Set-Cookie", [items.cookie.serialize("ssid", d.session.ssid)]);
                 }
-                this.trigger("next", d);
             });
             this.watch("save-session", (e, session) => items.manager.save(session.ssid));
             this.watch("destroy-session", (e, session) => items.manager.destroy(session.ssid));
@@ -177,7 +177,6 @@ $_("rewrite").imports({
                     d.url = item["to"].replace(regexp, (_, n, name) => {return m[item.map[name].index + 1]});
                     break;
                 }
-                this.trigger("next", d);
             });
             function toMap(params) {
                 let map = {};
@@ -343,17 +342,21 @@ $_("session").imports({
 
 $_("static").imports({
     Status: {
+		xml: "<main id='status'/>",
         fun: function (sys, items, opts) {
             let fs = require("fs"), url = require("url"), path = require("path");
             this.on("enter", async (e, d) => {
+				if (e.target == sys.status) return;
+				e.stopPropagation();
                 d.path = path.join(opts.root, decodeURIComponent(url.parse(d.url).pathname));
                 let s = await status(d.path);
-                if ( s.err == null ) {
-                    s.stat.isFile() ? this.trigger("next", (d.stat = s.stat, d)) : this.trigger("reject", (d.status = 404, d));
+                if (s.err == null) {
+                    s.stat.isFile() ? sys.status.trigger("enter", (d.stat = s.stat, d)) : this.trigger("reject", (d.status = 404, d));
                 } else if (s.err.code == "ENOENT") {
                     this.trigger("reject", (d.status = 404, d));
                 } else {
-                    this.trigger("next", [(d.status = 500, d), "error"]);
+					d.status = 500;
+					this.trigger("goto", [d, "error"]);
                 }
             });
             function status(path) {
@@ -378,7 +381,10 @@ $_("static").imports({
                     } else if (isFresh(d.req, d.res)) {
                         data = [(d.status = 304, d), "error"];
                     }
-                this.trigger("next", data);
+				if (data.length) {
+					e.stopPropagation();
+					this.trigger("goto", data);
+				}
             });
             function isConditionalGET (req) {
                 return req.headers['if-match'] || req.headers['if-unmodified-since'] || req.headers['if-none-match'] || req.headers['if-modified-since'];
@@ -400,21 +406,22 @@ $_("static").imports({
             this.on("enter", (e, d) => {
                 let len = d.stat.size, ranges = d.req.headers.range;
                 d.res.setHeader("Accept-Ranges", "bytes");
-                if ( !BYTES_RANGE.test(ranges) || !items.isRangeFresh(d.req, d.res) )
-                    return this.trigger("next", d);
+                if (!BYTES_RANGE.test(ranges) || !items.isRangeFresh(d.req, d.res))
+                    return;
                 ranges = parseRange(len, ranges, {combine: true});
-                if ( ranges === -1 ) {
+                if (ranges === -1) {
                     d.res.setHeader('Content-Range', `bytes */${len}}`);
-                    return this.trigger("next", [(d.status = 416, d), "error"]);
+					e.stopPropagation();
+                    return this.trigger("goto", [(d.status = 416, d), "error"]);
                 }
-                if ( ranges.length === 1 ) {
+                if (ranges.length === 1) {
                     d.res.statusCode = 206;
                     d.res.setHeader('Content-Range', `bytes ${ranges[0].start + '-' + ranges[0].end + '/' + len}`);
                     d.res.setHeader('Content-Length', ranges[0].end - ranges[0].start + 1);
                     d.raw = fs.createReadStream(d.path, {start: ranges[0].start, end: ranges[0].end});
-                    return this.trigger("next", [d, "output"]);
+					e.stopPropagation();
+                    return this.trigger("goto", [d, "output"]);
                 }
-                this.trigger("next", d);
             });
         }
     },
@@ -426,7 +433,7 @@ $_("static").imports({
                 d.raw = fs.createReadStream(d.path);
                 if ( !types.has(path.extname(d.path)) ) {
                     d.res.setHeader("Content-Length", d.stat.size);
-                    return this.trigger("next", d);
+                    return;
                 }
                 let encoding = d.req.headers['accept-encoding'] || "";
                 if ( encoding.indexOf("gzip") != -1 ) {
@@ -438,7 +445,6 @@ $_("static").imports({
                 } else {
                     d.res.setHeader("Content-Length", d.stat.size);
                 }
-                this.trigger("next", d);
             });
         }
     }, 
@@ -446,6 +452,7 @@ $_("static").imports({
         fun: function (sys, items, opts) {
             let mime = require("mime");
             this.on("enter", (e, d) => {
+				e.stopPropagation();
                 let type = mime.lookup(d.path),
                     charset = mime.charsets.lookup(type);
                 d.res.setHeader('Content-Type', type + (charset ? '; charset=' + charset : ''));

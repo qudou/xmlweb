@@ -14,11 +14,11 @@ Note, xmlweb requires node v7.0.0 or higher for ES2015 and async function suppor
 
 ## Hello, world
 
-You can test the example with `http://localhost:8080`.
+You can test the example with `http://localhost`.
 
 ```js
 let xmlweb = require("xmlweb");
-xmlweb("xp", function (xp, $_, t) {
+xmlweb("xp", function (xp, $_) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
