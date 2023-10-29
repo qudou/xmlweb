@@ -26,7 +26,7 @@ xmlweb 内置了一个 Session 组件，你可以像下面这样创建一个 Ses
 // 06-01
 Response: {
     fun: function(sys, items, opts) {
-        this.on("enter", (e, d) => {
+        this.watch("next", (e, d) => {
             d.session.count = d.session.count || 0;
             d.session.count++;
             d.res.setHeader("Content-Type", "text/html");
@@ -46,7 +46,7 @@ Response: {
 // 06-02
 Response: {
     fun: function(sys, items, opts) {
-        this.on("enter", (e, d) => {
+        this.watch("next", (e, d) => {
             d.session.count = d.session.count || 0;
             d.session.count++;
             this.notify("save-session", d.session);
@@ -103,7 +103,7 @@ Storage: {
 // 06-04
 Response: {
     fun: function(sys, items, opts) {
-        this.on("enter", (e, d) => {
+        this.watch("next", (e, d) => {
             d.session.count = d.session.count || 0;
             d.session.count++;
             if ( d.session.count > 5 )

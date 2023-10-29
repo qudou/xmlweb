@@ -8,7 +8,6 @@ URL 重写是将一个进入的 URL 重新写成另一个 URL 的过程。
 
 - req：请求对象(request)
 - res：响应对象(response)
-- ptr：状态机内部使用的指针数组
 - url：与 req.url 一致
 
 URL 的重写并不改变请求对象 req 中的 url 原始值，它改变的是数据流中的 `url` 参数。请看下面的示例：
@@ -27,7 +26,7 @@ URL 的重写并不改变请求对象 req 中的 url 原始值，它改变的是
 // 04-01
 Response: {
     fun: function (sys, items, opts) {
-        this.on("enter", (e, d) => {
+        this.watch("next", (e, d) => {
             d.res.setHeader("Content-Type", "text/html");
             d.res.end(`original URL: ${d.req.url}; rewrited URL: ${d.url}` );
         });
@@ -35,7 +34,7 @@ Response: {
 }
 ```
 
-在浏览器中输入 `http://localhost:8080`，那么你将看到原始的 `url` 以及经过 Response 组件节点重写后的 `url`。
+在浏览器中输入 `http://localhost`，那么你将看到原始的 `url` 以及经过 Response 组件节点重写后的 `url`。
 
 ## 重写规则
 

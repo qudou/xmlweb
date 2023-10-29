@@ -1,6 +1,6 @@
 # 概述
 
-xmlweb 是一个基于状态机理论设计的 web 服务器，使用它可以设计出高可读性、高可维护性的 web 服务应用。另外，xmlweb 基于 xmlplus 实现，你可以自由地使用 xmlplus 特性来高效地完成开发任务。当然，在阅读本文档之前，请确保你已经熟练使用 [xmlplus](http://xmlplus.cn) 框架。
+xmlweb 是一个类似状态机的 web 服务器，使用它可以设计出高可读性、高可维护性的 web 服务应用。另外，xmlweb 基于 xmlplus 实现，你可以自由地使用 xmlplus 特性来高效地完成开发任务。当然，在阅读本文档之前，请确保你已经熟练使用 [xmlplus](http://xmlplus.cn) 框架。
 
 ## 安装
 

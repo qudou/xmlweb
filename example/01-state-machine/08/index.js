@@ -1,28 +1,34 @@
 let xmlweb = require("xmlweb");
-xmlweb("xp", function (xp, $_, t) {
+xmlweb("xp", function (xp, $_) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
                     <i:Router url='/:id.html'/>\
                     <Machine id='machine'/>\
                     <Hello id='hello'/>\
-                  </i:HTTP>"
+                  </i:HTTP>",
+			fun: function (sys, items, opts) {
+				this.on("jump", (e, d) => {
+                    sys.hello.notify("next", d);
+                });
+			}
         },
         Machine: {
-            xml: "<i:Flow xmlns:i='//xmlweb'>\
-                    <Next id='next'/>\
-                  </i:Flow>"
+			map: { msgFilter: /next/ },
+            xml: "<i:Falls xmlns:i='//xmlweb'>\
+                    <Alice id='alice'/>\
+                  </i:Falls>"
         },
-        Next: {
+        Alice: {
             fun: function (sys, items, opts) {
-                this.on("enter", (e, d) => this.trigger("reject", d));
+                this.watch("next", (e, d) => this.trigger("jump", d));
             }
         },
         Hello: {
             fun: function (sys, items, opts) {
-                this.on("enter", (e, d) => {
+                this.watch("next", (e, d) => {
                     d.res.setHeader("Content-Type", "text/html");
-                    d.res.end(opts.text || "hello, world");
+                    d.res.end("hello, world");
                 });
             }
         }

@@ -1,5 +1,5 @@
 let xmlweb = require("xmlweb");
-xmlweb("xp", function (xp, $_, t) {
+xmlweb("xp", function (xp, $_) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
@@ -7,14 +7,15 @@ xmlweb("xp", function (xp, $_, t) {
                   </i:HTTP>"
         },
         Machine: {
-            xml: "<i:Flow xmlns:i='//xmlweb'>\
+			map: { msgFilter: /next/ },
+            xml: "<i:Falls xmlns:i='//xmlweb'>\
                     <i:Router url='/index.html'/>\
                     <Hello id='hello'/>\
-                 </i:Flow>"
+                 </i:Falls>"
         },
         Hello: {
             fun: function (sys, items, opts) {
-                this.on("enter", (e, d) => {
+                this.watch("next", (e, d) => {
                     d.res.setHeader("Content-Type", "text/html");
                     d.res.end("hello, world");
                 });

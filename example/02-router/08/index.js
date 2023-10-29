@@ -3,7 +3,7 @@ xmlweb("xp", function (xp, $_, t) {
     $_().imports({
         Index: {
             xml: "<i:HTTP xmlns:i='//xmlweb'>\
-                    <i:Router url='/:foo\\?bar=:bar'/>\
+                    <i:Router url='/:foo/:bar'/>\
                     <Response id='response'/>\
                   </i:HTTP>"
         },

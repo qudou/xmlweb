@@ -14,7 +14,7 @@
 </i:HTTP>
 ```
 
-此 web 服务对于不符合要求的请求会导致服务返回内置的 404 页面。再请看下面的一个 POST 请求示例：
+此 web 服务对于不符合要求的请求会导致服务返回内置的状态页面。再请看下面的一个 POST 请求示例：
 
 ```xml
 <!-- 02-02 -->
@@ -24,12 +24,12 @@
 </i:HTTP>
 ```
 
-该 web 服务接受任何路径的 POST 请求，但不接收任何的 GET 请求。同样一旦接收到不符合要求的请求会导致服务返回内置的 404 页面。下面是组件 Response 的函数项：
+该 web 服务接受任何路径的 POST 请求，但不接收任何的 GET 请求。同样一旦接收到不符合要求的请求会导致服务返回内置的状态页面。下面是组件 Response 的函数项：
 
 ```js
 // 02-02
 function (sys, items, opts) {
-    this.on("enter", (e, d) => {
+    this.watch("next", (e, d) => {
         d.res.setHeader("Content-Type", "application/json;");
         d.res.end(JSON.stringify({data: "hello, world"}));
     });
@@ -39,7 +39,7 @@ function (sys, items, opts) {
 为了避免由于跨域请求所带来的问题，你可以使用如下的 `curl` 命令来完成 POST 请求的测试。当然，要测试 GET 请求所返回的结果，只需要把上面命令行的 POST 该为 GET 即可。
 
 ```bash
-$ curl -X POST http://localhost:8080
+$ curl -X POST http://localhost
 ```
 
 如果你希望接收任意的 GET 或者 POST 请求，可以指定 method 的值为 '*'，如下面的示例所示：
@@ -97,12 +97,39 @@ $ curl -X POST http://localhost:8080
 
 注意，上面的模式串不能写成 `/hel?lo`，否则问号会被当成字符处理。
 
+## 错误处理
+
+前面说过，一旦接收到不符合要求的请求会导致服务返回内置的状态页面。如果我们相自定义错误处理程序，可以给 Router 组件提供一个静态参数 err，此参数指定了目标错误处理组件。
+
+```xml
+<!-- 02-07 -->
+<i:HTTP xmlns:i='//xmlweb'>
+    <i:Router id='router' err='notfound'/>
+    <Response id='response'/>
+    <NotFound id='notfound'/>
+</i:HTTP>
+```
+
+在此示例中，我们定义了一个组件 NotFound，该组件覆盖了 Router 组件的错误输入处理程序。
+
+```js
+// 02-07
+NotFound: {
+	fun: function (sys, items, opts) {
+		this.watch("next", (e, d) => {
+			d.res.setHeader("Content-Type", "text/html");
+			d.res.end("input error!");
+		});
+	}
+}
+```
+
 ## 命名参数值的获取
 
 如果静态参数 `url` 中包含有命名参数，那么数据流经过 Router 组件节点时，各命名参数相应的值将会被解析出来作为一个普通的 JSON 对象赋值给数据流的子参数 `args`。请看下面的一个示例：
 
 ```xml
-<!-- 02-07 -->
+<!-- 02-08 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/:foo/:bar'/>
     <Response id='response'/>\
@@ -112,16 +139,16 @@ $ curl -X POST http://localhost:8080
 该示例的 Index 组件的函数项的具体内容如下：
 
 ```js
-// 02-07
+// 02-08
 function (sys, items, opts) {
-    this.on("enter", (e, d) => {
+    this.watch("next", (e, d) => {
         d.res.setHeader("Content-Type", "text/html");
         d.res.end(JSON.stringify(d.args));
     });
 }
 ```
 
-运行这个示例，如果输入的 url 是 `http://localhost:8080/alice/bob`，那么你将会看到如下的输出：
+运行这个示例，如果输入的 url 是 `http://localhost/alice/bob`，那么你将会看到如下的输出：
 
 ```json
 { "foo": "alice", "bar": "bob" }
@@ -132,14 +159,14 @@ function (sys, items, opts) {
 与命名参数值的获取类似，GET 请求数据的获取也是由数据流的子参数 `args` 参数得到的。现在让我们对上面的示例做点修改：
 
 ```xml
-<!-- 02-08 -->
+<!-- 02-09 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/:foo\\?bar=:bar'/>
     <Response id='response'/>\
 </i:HTTP>
 ```
 
-该示例的 Response 组件的函数项的与前面的一致。运行这个示例，如果输入的 url 是 `http://localhost:81/alice?bar=bob`，那么你将会看到与前一个示例一样的输出：
+该示例的 Response 组件的函数项的与前面的一致。运行这个示例，如果输入的 url 是 `http://localhost/alice?bar=bob`，那么你将会看到与前一个示例一样的输出：
 
 ```json
 { "foo": "alice", "bar": "bob" }
@@ -152,7 +179,7 @@ function (sys, items, opts) {
 与 GET 请求不同，如果是 POST 请求，你不但可以获取到上述的两类数据，还可以得到请求报文的主体信息。该信息被解析出来后会赋值给数据流的子参数 `body`。请看下面的示例：
 
 ```xml
-<!-- 02-09 -->
+<!-- 02-10 -->
 <i:HTTP xmlns:i='//xmlweb'>
     <i:Router url='/' method='POST'/>
     <Response id='response'/>\
@@ -162,9 +189,9 @@ function (sys, items, opts) {
 该示例的 Response 组件的函数项的具体内容如下：
 
 ```js
-// 02-09
+// 02-10
 function (sys, items, opts) {
-    this.on("enter", (e, d) => {
+    this.watch("next", (e, d) => {
         d.res.setHeader("Content-Type", "text/html");
         d.res.end(JSON.stringify(d.body));
     });
@@ -174,7 +201,7 @@ function (sys, items, opts) {
 为了避免由于跨域请求所带来的问题，你可以使用如下的 `curl` 命令来完成 POST 请求的测试：
 
 ```bash
-$ curl -H "Content-type: application/json" -X POST -d '{"key":"2017"}' http://localhost:8080
+$ curl -H "Content-type: application/json" -X POST -d '{"key":"2017"}' http://localhost
 ```
 
 仔细观察，该命令添加了一个请求头 `Content-type: application/json`，这样后台会试图将目标数据解析为 JSON 组件对象。

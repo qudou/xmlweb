@@ -9,7 +9,7 @@ xmlweb("xp", function (xp, $_, t) {
         },
         Response: {
             fun: function(sys, items, opts) {
-                this.on("enter", (e, d) => {
+                this.watch("next", (e, d) => {
                     d.session.count = d.session.count || 0;
                     d.session.count++;
                     if ( d.session.count == 5 )

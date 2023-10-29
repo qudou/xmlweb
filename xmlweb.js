@@ -1,7 +1,7 @@
 ﻿/*!
- * xmlweb.js v1.1.28
+ * xmlweb.js v1.2.3
  * https://github.com/qudou/xmlweb
- * (c) 2009-2017 qudou
+ * (c) 2009-2023 qudou
  * Released under the MIT license
  */
 let xmlplus = require("xmlplus");
@@ -12,12 +12,11 @@ $_().imports({
     HTTP: {
         map: {extend: {"from": "Base"}},
         fun: function (sys, items, opts) {
-            let first = this.first();
             let SERVER = "xmlweb/" + require('os').type();
-			let listen = parseInt(opts.listen || 8080);
+            let listen = parseInt(opts.listen || 80);
             require("http").createServer((req, res) => {
                 res.setHeader("Server", SERVER);
-                first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
+                this.notify("next", {url: req.url, req:req, res:res});
             }).listen(listen);
         }
     },
@@ -25,75 +24,61 @@ $_().imports({
         map: {extend: {"from": "Base"}},
         fun: function (sys, items, opts) {
             let fs = require("fs");
-            let first = this.first();
             let SERVER = "xmlweb/" + require('os').type();
-			let listen = parseInt(opts.listen || 443);
+            let listen = parseInt(opts.listen || 443);
             let options = {
                 key: fs.readFileSync(opts.key),
                 cert: fs.readFileSync(opts.cert)
             };
             require("https").createServer(options, (req, res) => {
                 res.setHeader("Server", SERVER);
-                first.trigger("enter", {url: req.url, req:req, res:res, ptr:[first]}, false);
+                this.notify("next", {url: req.url, req:req, res:res});
             }).listen(listen);
         }
     },
     Base: {
+        map: {extend: {"from": "Falls"}},
         fun: function (sys, items, opts) {
-            let table = this.find("./*[@id]").hash();
-            this.on("next", (e, d, next) => {
-                d.ptr[0] = table[next] || d.ptr[0].next();
-                d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject", d);
-            });
             let statuses = require("statuses");
-            this.on("reject", (e, d) => {
+            this.on("reply", (e, d) => {
                 d.res.statusCode = d.status = d.status || 501;
                 d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
                 d.res.end(statuses[d.status] || String(d.status));
             });
         }
     },
-    Flow: {
-        xml: "<main id='flow'/>",
+    Falls: {
         fun: function (sys, items, opts) {
-            let first = this.first(),
-                table = this.find("./*[@id]").hash();
-            this.on("enter", (e, d, next) => {
-                d.ptr.unshift(first);
-                first.trigger("enter", d, false);
+            let first = this.first();
+            let table = this.find("./*[@id]").hash();
+            this.watch("next", (e, d) => {
+                e.stopNotification();
+                first.notify("next", d);
             });
-            this.on("next", (e, d, next) => {
-                if ( e.target == sys.flow ) return;
+            this.on("next", "*", function (e, d, next) {
                 e.stopPropagation();
-                if ( next == null ) {
-                    d.ptr[0] = d.ptr[0].next();
-                    d.ptr[0] ? d.ptr[0].trigger("enter", d, false) : this.trigger("reject", [d, next]);
-                } else if ( table[next] ) {
-                    (d.ptr[0] = table[next]).trigger("enter", d, false);
-                } else {
-                    this.trigger("reject", [d, next]);
+                if (next == null) {
+                    next = this.next();
+                    next && next.notify("next", d);
+                } else if (table[next]) {
+                    table[next].notify("next", d);
                 }
-            });
-            this.on("reject", (e, d, next) => {
-                d.ptr.shift();
-                e.stopPropagation();
-                sys.flow.trigger("next", [d, next]);
             });
         }
     },
     Static: {
         cfg: { router: {method: "GET", usebody: false} },
-        xml: "<Flow xmlns:s='static'>\
-                <Router id='router'/>\
+        xml: "<Falls xmlns:s='static'>\
+                <Router id='router' err='reply'/>\
                 <s:Status id='status'/>\
                 <s:Cache id='cache'/>\
                 <s:Ranges id='ranges'/>\
                 <s:Compress id='compress'/>\
                 <s:Output id='output'/>\
-                <s:Error id='error'/>\
-              </Flow>",
+                <s:Reply id='reply'/>\
+              </Falls>",
         opt: { root: ".", url: "/*" }, 
-        map: { attrs: { router: "url", status: "root", cache: "etag lastModified cacheControl maxAge" } }
+        map: { attrs: { router: "url", status: "root", cache: "etag lastModified cacheControl maxAge" }, msgFilter: /next/ }
     },
     Router: {
         xml: "<main id='router' xmlns:i='/router'>\
@@ -103,17 +88,22 @@ $_().imports({
         opt: { url: "/*", method: "GET", usebody: "true" },
         map: { attrs: {"url": "url"} },
         fun: function (sys, items, opts) {
-            this.on("enter", async (e, d) => {
-                if ( opts.method != '*' && d.req.method != opts.method )
-                    return this.trigger(opts.ifNotMatch ? "next" : "reject", [d, opts.ifNotMatch]);
+            this.watch("next", async (e, d) => {
+                if (opts.method != '*' && d.req.method != opts.method) {
+                    d.status = 405;
+                    return reply(d);
+                }
                 d.url = items.url.decode(d.url);
                 d.args = items.url.parse(d.req.url);
-                if ( d.args == false )
-                    return this.trigger("reject", d);
-                if ( d.req.method == "POST" && opts.usebody == "true" )
+                if (d.args == false)
+                    return reply(d);
+                if (d.req.method == "POST" && opts.usebody == "true")
                     d.body = await items.body(d.req);
                 this.trigger("next", d);
             });
+            function reply(d) {
+                sys.router.trigger(opts.err ? "next" : "reply", [d, opts.err]);
+            }
         }
     },
     Rewrite: {
@@ -128,7 +118,7 @@ $_().imports({
                 "307": "Temporary Redirect"
             };
             let statusCode = table[opts.statusCode] ? opts.statusCode : "302";
-            this.on("enter", (e, d) => {
+            this.watch("next", (e, d) => {
                 d.res.statusCode = statusCode;
                 d.res.setHeader("Location", opts["to"]);
                 d.res.end();
@@ -142,7 +132,7 @@ $_().imports({
               </main>",
         map: { attrs: { cookie: "maxAge secure httpOnly", manager: "maxAge" } },
         fun: function (sys, items, opts) {
-            this.on("enter", (e, d) => {
+            this.watch("next", (e, d) => {
                 d.cookies = items.cookie.parse(d.req.headers.cookie);
                 d.session = items.manager.has(d.cookies.ssid);
                 if ( !d.session ) {
@@ -170,7 +160,7 @@ $_("rewrite").imports({
             let table = [],
                 regexp = /\$(\d+)|(?::(\w+))/g,
                 toRegexp = require("path-to-regexp");
-            this.on("enter", (e, d) => {
+            this.watch("next", (e, d) => {
                 for (item of table) {
                     let m = item["from"].exec(d.req.url);
                     if ( !m ) continue;
@@ -344,17 +334,20 @@ $_("session").imports({
 $_("static").imports({
     Status: {
         fun: function (sys, items, opts) {
-            let fs = require("fs"), url = require("url"), path = require("path");
-            this.on("enter", async (e, d) => {
+            let fs = require("fs");
+            let url = require("url");
+            let path = require("path");
+            this.watch("next", async (e, d) => {
                 d.path = path.join(opts.root, decodeURIComponent(url.parse(d.url).pathname));
-                let s = await status(d.path);
-                if ( s.err == null ) {
-                    s.stat.isFile() ? this.trigger("next", (d.stat = s.stat, d)) : this.trigger("reject", (d.status = 404, d));
+                let next, s = await status(d.path);
+                if (s.err == null) {
+                    s.stat.isFile() ? (d.stat = s.stat) : (d.status = 404, next = "reply");
                 } else if (s.err.code == "ENOENT") {
-                    this.trigger("reject", (d.status = 404, d));
+                    d.status = 404, next = "reply";
                 } else {
-                    this.trigger("next", [(d.status = 500, d), "error"]);
+                    d.status = 500, next = "reply";
                 }
+                this.trigger("next", [d, next]);
             });
             function status(path) {
                 return new Promise(resolve => fs.stat(path, (err, stat) => resolve({err: err, stat: stat})));
@@ -367,16 +360,16 @@ $_("static").imports({
         fun: function (sys, items, opts) {
             let etag = require("etag");
             let fresh = require("fresh");
-            this.on("enter", (e, d) => {
+            this.watch("next", (e, d) => {
                 let data = d;
                 opts.etag === "false" || d.res.setHeader('ETag', etag(d.stat));
                 opts.lastModified === "false" || d.res.setHeader('Last-Modified', d.stat.mtime.toUTCString());
                 opts.cacheControl === "false" || d.res.setHeader('Cache-Control', `public, max-age=${opts.maxAge}`);
                 if (isConditionalGET(d.req))
                     if (items.isPreconditionFailure(d.req, d.res)) {
-                        data = [(d.status = 412, d), "error"];
+                        data = [(d.status = 412, d), "reply"];
                     } else if (isFresh(d.req, d.res)) {
-                        data = [(d.status = 304, d), "error"];
+                        data = [(d.status = 304, d), "reply"];
                     }
                 this.trigger("next", data);
             });
@@ -397,7 +390,7 @@ $_("static").imports({
             let fs = require("fs"),
                 BYTES_RANGE = /^ *bytes=/,
                 parseRange = require('range-parser');
-            this.on("enter", (e, d) => {
+            this.watch("next", (e, d) => {
                 let len = d.stat.size, ranges = d.req.headers.range;
                 d.res.setHeader("Accept-Ranges", "bytes");
                 if ( !BYTES_RANGE.test(ranges) || !items.isRangeFresh(d.req, d.res) )
@@ -405,7 +398,7 @@ $_("static").imports({
                 ranges = parseRange(len, ranges, {combine: true});
                 if ( ranges === -1 ) {
                     d.res.setHeader('Content-Range', `bytes */${len}}`);
-                    return this.trigger("next", [(d.status = 416, d), "error"]);
+                    return this.trigger("next", [(d.status = 416, d), "reply"]);
                 }
                 if ( ranges.length === 1 ) {
                     d.res.statusCode = 206;
@@ -420,9 +413,11 @@ $_("static").imports({
     },
     Compress: {
         fun: function (sys, items, opts) {
-            let types = new Set(['.css','.js','.htm','.html']),
-                fs = require("fs"), zlib = require("zlib"), path = require("path");
-            this.on("enter", (e, d) => {
+            let types = new Set(['.css','.js','.htm','.html']);
+            let fs = require("fs");
+            let zlib = require("zlib");
+            let path = require("path");
+            this.watch("next", (e, d) => {
                 d.raw = fs.createReadStream(d.path);
                 if ( !types.has(path.extname(d.path)) ) {
                     d.res.setHeader("Content-Length", d.stat.size);
@@ -445,7 +440,7 @@ $_("static").imports({
     Output: {
         fun: function (sys, items, opts) {
             let mime = require("mime");
-            this.on("enter", (e, d) => {
+            this.watch("next", (e, d) => {
                 let type = mime.lookup(d.path),
                     charset = mime.charsets.lookup(type);
                 d.res.setHeader('Content-Type', type + (charset ? '; charset=' + charset : ''));
@@ -453,13 +448,10 @@ $_("static").imports({
             });
         }
     },
-    Error: {
+    Reply: {
         fun: function (sys, items, opts) {
-            let statuses = require("statuses");
-            this.on("enter", (e, d) => {
-                d.res.statusCode = d.status;
-                d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
-                d.res.end(statuses[d.status] || String(d.status));
+            this.watch("next", (e, d) => {
+                this.trigger("reply", d);
             });
         }
     }
