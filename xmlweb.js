@@ -1,5 +1,5 @@
 ﻿/*!
- * xmlweb.js v1.2.3
+ * xmlweb.js v1.2.4
  * https://github.com/qudou/xmlweb
  * (c) 2009-2023 qudou
  * Released under the MIT license
@@ -41,6 +41,7 @@ $_().imports({
         fun: function (sys, items, opts) {
             let statuses = require("statuses");
             this.on("reply", (e, d) => {
+                e.stopPropagation();
                 d.res.statusCode = d.status = d.status || 501;
                 d.res.setHeader("Content-Type", "text/html; charset=UTF-8");
                 d.res.end(statuses[d.status] || String(d.status));
@@ -78,7 +79,16 @@ $_().imports({
                 <s:Reply id='reply'/>\
               </Falls>",
         opt: { root: ".", url: "/*" }, 
-        map: { attrs: { router: "url", status: "root", cache: "etag lastModified cacheControl maxAge" }, msgFilter: /next/ }
+        map: { attrs: { router: "url", status: "root", cache: "etag lastModified cacheControl maxAge" }, msgFilter: /next/ },
+        fun: function (sys, items, opts) {
+            if (!opts.cover404) return;
+            this.on("reply", (e, d) => {
+                if (d.status == 404) {
+                    e.stopPropagation();
+                    this.trigger("notfound", d);
+                }
+            });
+        }
     },
     Router: {
         xml: "<main id='router' xmlns:i='/router'>\
